@@ -31,6 +31,7 @@ class CasoController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', Caso::class);
+        $perPage = $this->resolvePerPage($request);
 
         /** @var User $usuario */
         $usuario = $request->user();
@@ -51,12 +52,14 @@ class CasoController extends Controller
 
         $casos = $query
             ->orderByDesc('updated_at')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('casos.index', [
             'casos' => $casos,
             'isAdmin' => $isAdmin,
+            'perPage' => $perPage,
+            'perPageOptions' => $this->perPageOptions(),
             'cooperativas' => $isAdmin
                 ? Cooperativa::query()->orderBy('nome')->get(['id', 'nome'])
                 : collect(),

@@ -24,6 +24,7 @@ class UsuarioController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', User::class);
+        $perPage = $this->resolvePerPage($request);
 
         $query = User::query()->with([
             'cooperativa:id,nome',
@@ -34,7 +35,7 @@ class UsuarioController extends Controller
 
         $usuarios = $query
             ->orderBy('name')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('usuarios.index', [
@@ -42,6 +43,8 @@ class UsuarioController extends Controller
             'cooperativas' => $this->cooperativas(),
             'papeis' => $this->papeis(),
             'perfis' => $this->opcoesPerfil(),
+            'perPage' => $perPage,
+            'perPageOptions' => $this->perPageOptions(),
             'filtros' => $request->only([
                 'nome',
                 'email',
@@ -231,7 +234,7 @@ class UsuarioController extends Controller
     protected function opcoesPerfil(): array
     {
         return [
-            User::PERFIL_ADMIN => 'Admin',
+            User::PERFIL_ADMIN => 'Administrador',
             User::PERFIL_GESTOR => 'Gestor',
             User::PERFIL_OPERACIONAL => 'Operacional',
         ];

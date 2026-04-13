@@ -45,7 +45,7 @@
                 @endforeach
             </select>
             <p class="mt-1 text-xs text-gray-500" x-show="perfil === '{{ \App\Models\User::PERFIL_ADMIN }}'" x-cloak>
-                Para perfil admin, a cooperativa deve ficar vazia.
+                Para perfil administrador, a cooperativa deve ficar vazia.
             </p>
             <p class="mt-1 text-xs text-gray-500" x-show="perfil !== '{{ \App\Models\User::PERFIL_ADMIN }}'" x-cloak>
                 Para perfis gestor e operacional, a cooperativa é obrigatória.
@@ -67,7 +67,7 @@
                 @endforeach
             </select>
             <p class="mt-1 text-xs text-gray-500" x-show="perfil === '{{ \App\Models\User::PERFIL_ADMIN }}'" x-cloak>
-                Para perfil admin, o papel pode ficar vazio.
+                Para perfil administrador, o papel pode ficar vazio.
             </p>
             <p class="mt-1 text-xs text-gray-500" x-show="perfil !== '{{ \App\Models\User::PERFIL_ADMIN }}'" x-cloak>
                 Para perfis gestor e operacional, o papel é obrigatório.

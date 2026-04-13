@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Caso;
 use App\Models\AndamentoCaso;
+use App\Models\Cooperativa;
 use App\Models\ConfiguracaoEmail;
 use App\Models\ConfiguracaoGeral;
 use App\Models\ConfiguracaoNotificacao;
@@ -14,6 +15,7 @@ use App\Models\ProvedorMensagem;
 use App\Models\User;
 use App\Policies\AndamentoCasoPolicy;
 use App\Policies\CasoPolicy;
+use App\Policies\CooperativaPolicy;
 use App\Policies\ConfiguracaoPolicy;
 use App\Policies\FeriadoSuspensaoPolicy;
 use App\Policies\PapelPolicy;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ConfiguracaoNotificacao::class, ConfiguracaoPolicy::class);
         Gate::policy(ProvedorMensagem::class, ConfiguracaoPolicy::class);
         Gate::policy(ConfiguracaoProvedorMensagem::class, ConfiguracaoPolicy::class);
+        Gate::policy(Cooperativa::class, CooperativaPolicy::class);
         Gate::policy(Papel::class, PapelPolicy::class);
         Gate::policy(User::class, UsuarioPolicy::class);
 

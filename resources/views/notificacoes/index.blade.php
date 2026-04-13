@@ -11,18 +11,29 @@
                     <p class="text-sm text-slate-600">Acompanhe os avisos internos enviados para o seu usuário.</p>
                 </div>
 
-                @if ($naoLidasCount > 0)
-                    <form method="POST" action="{{ route('notificacoes.markAllAsRead') }}">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition hover:bg-slate-800">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg>
-                            Marcar todas como lidas
-                        </button>
+                <div class="flex flex-wrap items-end gap-3">
+                    <form method="GET" action="{{ route('notificacoes.index') }}">
+                        <label for="per_page" class="block text-sm font-medium text-gray-700">Registros por página</label>
+                        <select name="per_page" id="per_page" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
+                            @foreach ($perPageOptions as $opcao)
+                                <option value="{{ $opcao }}" @selected((int) $perPage === (int) $opcao)>{{ $opcao }}</option>
+                            @endforeach
+                        </select>
                     </form>
-                @endif
+
+                    @if ($naoLidasCount > 0)
+                        <form method="POST" action="{{ route('notificacoes.markAllAsRead') }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition hover:bg-slate-800">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Marcar todas como lidas
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
 
             <div class="overflow-hidden rounded-xl bg-white shadow-sm">
@@ -94,11 +105,16 @@
                     @endforelse
                 </div>
 
-                @if ($notificacoes->hasPages())
-                    <div class="border-t border-gray-200 p-4">
-                        {{ $notificacoes->links() }}
+                <div class="border-t border-gray-200 p-4">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm text-gray-600">
+                            Mostrando {{ $notificacoes->firstItem() ?? 0 }} a {{ $notificacoes->lastItem() ?? 0 }} de {{ $notificacoes->total() }} registros
+                        </p>
+                        @if ($notificacoes->hasPages())
+                            {{ $notificacoes->links() }}
+                        @endif
                     </div>
-                @endif
+                </div>
             </div>
         </div>
     </div>

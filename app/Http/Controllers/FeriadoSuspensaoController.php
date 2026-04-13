@@ -17,6 +17,7 @@ class FeriadoSuspensaoController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', FeriadoSuspensao::class);
+        $perPage = $this->resolvePerPage($request);
 
         $query = FeriadoSuspensao::query();
 
@@ -25,11 +26,13 @@ class FeriadoSuspensaoController extends Controller
         $feriadosSuspensoes = $query
             ->orderByDesc('data')
             ->orderByDesc('id')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('feriados_suspensoes.index', [
             'feriadosSuspensoes' => $feriadosSuspensoes,
+            'perPage' => $perPage,
+            'perPageOptions' => $this->perPageOptions(),
             'filtros' => $request->only([
                 'data',
                 'descricao',

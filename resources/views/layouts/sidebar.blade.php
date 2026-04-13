@@ -65,6 +65,13 @@
         ];
 
         $menu[] = [
+            'label' => 'Cooperativas',
+            'route' => 'cooperativas.index',
+            'active' => str_starts_with($routeName ?? '', 'cooperativas'),
+            'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 8.25l8.25-4.5 8.25 4.5M4.5 9.75v7.5m15-7.5v7.5M7.5 18.75h9M9.75 9.75v6m4.5-6v6" />',
+        ];
+
+        $menu[] = [
             'label' => 'Papéis e Acessos',
             'route' => 'papeis.index',
             'active' => str_starts_with($routeName ?? '', 'papeis'),
@@ -86,8 +93,9 @@
         'casos.index' => 4,
         'relatorios.index' => 5,
         'usuarios.index' => 6,
-        'papeis.index' => 7,
-        'configuracoes.index' => 8,
+        'cooperativas.index' => 7,
+        'papeis.index' => 8,
+        'configuracoes.index' => 9,
     ];
 
     foreach ($menu as &$item) {
@@ -125,4 +133,3 @@
 </div>
 
 <div class="fixed inset-0 z-30 bg-slate-950/40 md:hidden" x-show="sidebarOpen" x-transition.opacity @click="sidebarOpen = false" x-cloak></div>
-

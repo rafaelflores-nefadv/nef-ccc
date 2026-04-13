@@ -21,6 +21,7 @@ class PapelController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', Papel::class);
+        $perPage = $this->resolvePerPage($request);
 
         $query = Papel::query()->withCount('permissoes');
 
@@ -28,11 +29,13 @@ class PapelController extends Controller
 
         $papeis = $query
             ->orderBy('nome')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('papeis.index', [
             'papeis' => $papeis,
+            'perPage' => $perPage,
+            'perPageOptions' => $this->perPageOptions(),
             'filtros' => $request->only(['nome', 'slug', 'ativo']),
         ]);
     }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AndamentoCasoController;
 use App\Http\Controllers\AtualizacaoController;
 use App\Http\Controllers\CasoController;
+use App\Http\Controllers\CooperativaController;
 use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeriadoSuspensaoController;
@@ -66,6 +67,15 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{user}/status', [UsuarioController::class, 'atualizarStatus'])->name('status');
         Route::get('/{user}/senha', [UsuarioController::class, 'editSenha'])->name('senha.edit');
         Route::patch('/{user}/senha', [UsuarioController::class, 'updateSenha'])->name('senha.update');
+    });
+
+    Route::prefix('cooperativas')->name('cooperativas.')->group(function () {
+        Route::get('/', [CooperativaController::class, 'index'])->name('index');
+        Route::get('/criar', [CooperativaController::class, 'create'])->name('create');
+        Route::post('/', [CooperativaController::class, 'store'])->name('store');
+        Route::get('/{cooperativa}/editar', [CooperativaController::class, 'edit'])->name('edit');
+        Route::match(['put', 'patch'], '/{cooperativa}', [CooperativaController::class, 'update'])->name('update');
+        Route::patch('/{cooperativa}/status', [CooperativaController::class, 'atualizarStatus'])->name('status');
     });
 
     Route::prefix('papeis')->name('papeis.')->group(function () {

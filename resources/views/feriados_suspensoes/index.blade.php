@@ -64,7 +64,16 @@
                             </select>
                         </div>
 
-                        <div class="flex items-center gap-3 md:col-span-4">
+                        <div class="flex flex-wrap items-end gap-3 md:col-span-4">
+                            <div>
+                                <label for="per_page" class="block text-sm font-medium text-gray-700">Registros por página</label>
+                                <select name="per_page" id="per_page" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
+                                    @foreach ($perPageOptions as $opcao)
+                                        <option value="{{ $opcao }}" @selected((int) $perPage === (int) $opcao)>{{ $opcao }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke-width="1.5" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 20l-3.5-3.5" /></svg>
                                 Buscar
@@ -130,7 +139,12 @@
                 </div>
 
                 <div class="border-t border-gray-200 p-4">
-                    {{ $feriadosSuspensoes->links() }}
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm text-gray-600">
+                            Mostrando {{ $feriadosSuspensoes->firstItem() ?? 0 }} a {{ $feriadosSuspensoes->lastItem() ?? 0 }} de {{ $feriadosSuspensoes->total() }} registros
+                        </p>
+                        {{ $feriadosSuspensoes->links() }}
+                    </div>
                 </div>
             </div>
         </div>

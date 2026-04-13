@@ -12,16 +12,20 @@ class NotificacaoController extends Controller
     public function index(Request $request): View
     {
         $usuario = $request->user();
+        $perPage = $this->resolvePerPage($request);
 
         abort_if(! $usuario, 403);
 
         $notificacoes = $usuario->notifications()
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('notificacoes.index', [
             'notificacoes' => $notificacoes,
             'naoLidasCount' => $usuario->unreadNotifications()->count(),
+            'perPage' => $perPage,
+            'perPageOptions' => $this->perPageOptions(),
         ]);
     }
 
