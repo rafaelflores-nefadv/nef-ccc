@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\RelatorioCasoService;
 use App\Support\ControleAcesso;
 use App\Support\EscopoCooperativa;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -103,13 +104,22 @@ class RelatorioController extends Controller
     {
         $query = User::query()
             ->where('ativo', true)
-            ->whereNotNull('cooperativa_id')
+            ->with('cooperativas:id,nome')
             ->orderBy('name');
 
-        $cooperativaId = EscopoCooperativa::cooperativaId($usuario);
+        $cooperativasIds = EscopoCooperativa::cooperativaIds($usuario);
 
-        if ($cooperativaId !== null) {
-            $query->where('cooperativa_id', $cooperativaId);
+        if ($cooperativasIds !== []) {
+            $query->where(function (Builder $subQuery) use ($cooperativasIds): void {
+                $subQuery
+                    ->whereHas('cooperativas', fn (Builder $cooperativaQuery) => $cooperativaQuery->whereIn('cooperativas.id', $cooperativasIds))
+                    ->orWhereIn('cooperativa_id', $cooperativasIds);
+            });
+        } else {
+            $query->where(function (Builder $subQuery): void {
+                $subQuery->whereHas('cooperativas')
+                    ->orWhereNotNull('cooperativa_id');
+            });
         }
 
         return $query->get(['id', 'name']);

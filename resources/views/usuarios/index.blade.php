@@ -102,7 +102,7 @@
                                 <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Nome</th>
                                 <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">E-mail</th>
                                 <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Perfil</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Cooperativa</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Cooperativas</th>
                                 <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Papel</th>
                                 <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Status</th>
                                 <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Ações</th>
@@ -114,7 +114,27 @@
                                     <td class="px-4 py-2 text-sm text-gray-900">{{ $usuario->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $usuario->email }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $perfis[$usuario->perfil] ?? ucfirst($usuario->perfil) }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $usuario->cooperativa?->nome ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        @php
+                                            $cooperativasUsuario = $usuario->cooperativas->pluck('nome')->filter()->values();
+
+                                            if ($cooperativasUsuario->isEmpty() && $usuario->cooperativa?->nome) {
+                                                $cooperativasUsuario = collect([$usuario->cooperativa->nome]);
+                                            }
+                                        @endphp
+
+                                        @if ($cooperativasUsuario->isEmpty())
+                                            -
+                                        @else
+                                            <div class="flex flex-wrap gap-1">
+                                                @foreach ($cooperativasUsuario as $nomeCooperativa)
+                                                    <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                        {{ $nomeCooperativa }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $usuario->papeis->first()?->nome ?? '-' }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
                                         <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $usuario->ativo ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">

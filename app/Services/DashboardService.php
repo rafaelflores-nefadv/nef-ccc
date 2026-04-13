@@ -190,10 +190,10 @@ class DashboardService
                 'tipoSubstatus:id,nome',
             ])
             ->whereHas('caso', function (Builder $query) use ($usuario): void {
-                $cooperativaId = EscopoCooperativa::cooperativaId($usuario);
+                $cooperativasIds = EscopoCooperativa::cooperativaIds($usuario);
 
-                if ($cooperativaId !== null) {
-                    $query->where('cooperativa_id', $cooperativaId);
+                if ($cooperativasIds !== []) {
+                    $query->whereIn('cooperativa_id', $cooperativasIds);
                 }
             })
             ->orderByDesc('created_at')
@@ -237,10 +237,10 @@ class DashboardService
     {
         $query = Caso::query();
 
-        $cooperativaId = EscopoCooperativa::cooperativaId($usuario);
+        $cooperativasIds = EscopoCooperativa::cooperativaIds($usuario);
 
-        if ($cooperativaId !== null) {
-            $query->where('casos.cooperativa_id', $cooperativaId);
+        if ($cooperativasIds !== []) {
+            $query->whereIn('casos.cooperativa_id', $cooperativasIds);
         }
 
         return $query;

@@ -22,7 +22,7 @@ class UsuarioSeeder extends Seeder
             ->where('slug', 'sicredi')
             ->firstOrFail();
 
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => $adminEmail],
             [
                 'name' => 'Admin Master',
@@ -33,10 +33,10 @@ class UsuarioSeeder extends Seeder
             ]
         );
 
-        User::updateOrCreate(
+        $usuarioCooperativa = User::updateOrCreate(
             ['email' => $usuarioCooperativaEmail],
             [
-                'name' => 'Usuário Cooperativa',
+                'name' => 'Usuario Cooperativa',
                 'password' => Hash::make('password'),
                 'perfil' => User::PERFIL_OPERACIONAL,
                 'cooperativa_id' => $cooperativa->id,
@@ -44,15 +44,14 @@ class UsuarioSeeder extends Seeder
             ]
         );
 
+        $admin->cooperativas()->sync([]);
+        $usuarioCooperativa->cooperativas()->sync([$cooperativa->id]);
+
         $papelOperacional = Papel::query()
             ->where('slug', 'operacional')
             ->first();
 
-        $usuarioCooperativa = User::query()
-            ->where('email', $usuarioCooperativaEmail)
-            ->first();
-
-        if ($papelOperacional && $usuarioCooperativa) {
+        if ($papelOperacional) {
             $usuarioCooperativa->papeis()->sync([$papelOperacional->id]);
         }
     }

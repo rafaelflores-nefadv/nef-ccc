@@ -1,5 +1,8 @@
 @php
-    $cooperativaSelecionada = old('cooperativa_id', $caso->cooperativa_id ?? auth()->user()?->cooperativa_id);
+    $cooperativasDisponiveis = $cooperativas ?? collect();
+    $cooperativaPadrao = $cooperativasDisponiveis->first()?->id ?? auth()->user()?->cooperativaPrincipalId();
+    $cooperativaSelecionada = old('cooperativa_id', $caso->cooperativa_id ?? $cooperativaPadrao);
+    $mostrarSelecaoCooperativa = $isAdmin || $cooperativasDisponiveis->count() > 1;
     $arquivadoValor = old('arquivado', $caso->arquivado ?? false);
     $inputClass = 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500';
     $distribuicaoValor = old('distribuicao');
@@ -16,7 +19,7 @@
 @endphp
 
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    @if ($isAdmin)
+    @if ($mostrarSelecaoCooperativa)
         <div>
             <label for="cooperativa_id" class="block text-sm font-medium text-gray-700">Cooperativa</label>
             <select name="cooperativa_id" id="cooperativa_id" class="{{ $inputClass }}" required>
@@ -30,7 +33,7 @@
             <x-input-error :messages="$errors->get('cooperativa_id')" class="mt-2" />
         </div>
     @else
-        <input type="hidden" name="cooperativa_id" value="{{ auth()->user()?->cooperativa_id }}">
+        <input type="hidden" name="cooperativa_id" value="{{ $cooperativaSelecionada }}">
     @endif
 
     <div>
@@ -152,9 +155,16 @@
         <select name="responsavel_id" id="responsavel_id" class="{{ $inputClass }}">
             <option value="">Selecione</option>
             @foreach ($responsaveis as $responsavel)
+                @php
+                    $cooperativasResponsavel = $responsavel->cooperativas->pluck('nome')->filter()->values();
+
+                    if ($cooperativasResponsavel->isEmpty() && $responsavel->cooperativa?->nome) {
+                        $cooperativasResponsavel = collect([$responsavel->cooperativa->nome]);
+                    }
+                @endphp
                 <option value="{{ $responsavel->id }}" @selected((string) old('responsavel_id', $caso->responsavel_id) === (string) $responsavel->id)>
-                    {{ $responsavel->name }}@if($isAdmin && $responsavel->cooperativa)
-                        - {{ $responsavel->cooperativa->nome }}
+                    {{ $responsavel->name }}@if($isAdmin && $cooperativasResponsavel->isNotEmpty())
+                        - {{ $cooperativasResponsavel->join(', ') }}
                     @endif
                 </option>
             @endforeach

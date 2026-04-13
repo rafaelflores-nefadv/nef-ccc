@@ -21,22 +21,22 @@ class AndamentoCasoPolicy
 
     public function viewAny(User $user, Caso $caso): bool
     {
-        return $user->cooperativa_id !== null
-            && $user->cooperativa_id === $caso->cooperativa_id
+        return EscopoCooperativa::temCooperativa($user)
+            && EscopoCooperativa::usuarioPertenceCooperativa($user, (int) $caso->cooperativa_id)
             && ControleAcesso::usuarioTemPermissao($user, 'andamentos.visualizar');
     }
 
     public function view(User $user, AndamentoCaso $andamentoCaso): bool
     {
-        return $user->cooperativa_id !== null
-            && $user->cooperativa_id === $andamentoCaso->caso->cooperativa_id
+        return EscopoCooperativa::temCooperativa($user)
+            && EscopoCooperativa::usuarioPertenceCooperativa($user, (int) $andamentoCaso->caso->cooperativa_id)
             && ControleAcesso::usuarioTemPermissao($user, 'andamentos.visualizar');
     }
 
     public function create(User $user, Caso $caso): bool
     {
-        return $user->cooperativa_id !== null
-            && $user->cooperativa_id === $caso->cooperativa_id
+        return EscopoCooperativa::temCooperativa($user)
+            && EscopoCooperativa::usuarioPertenceCooperativa($user, (int) $caso->cooperativa_id)
             && ControleAcesso::usuarioTemPermissao($user, 'andamentos.criar');
     }
 }

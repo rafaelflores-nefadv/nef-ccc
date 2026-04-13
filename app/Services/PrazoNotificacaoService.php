@@ -9,6 +9,7 @@ use App\Models\ConfiguracaoNotificacao;
 use App\Models\PrazoNotificacaoEnvio;
 use App\Models\User;
 use App\Notifications\NotificacaoInterna;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -395,8 +396,9 @@ class PrazoNotificacaoService
             $query = User::query()
                 ->where('ativo', true)
                 ->where('perfil', '!=', User::PERFIL_ADMIN)
-                ->where('cooperativa_id', $cooperativaId)
                 ->orderBy('name');
+
+            $this->aplicarFiltroUsuariosDaCooperativa($query, $cooperativaId);
 
             if ($usuariosDestino !== []) {
                 $query->whereIn('id', $usuariosDestino);
@@ -418,7 +420,7 @@ class PrazoNotificacaoService
             $responsavel instanceof User
             && $responsavel->ativo
             && ! $responsavel->isAdmin()
-            && (int) $responsavel->cooperativa_id === (int) $caso->cooperativa_id
+            && $responsavel->pertenceCooperativa((int) $caso->cooperativa_id)
         ) {
             $destinatarios = $destinatarios->push($responsavel);
         } else {
@@ -448,6 +450,15 @@ class PrazoNotificacaoService
             ->get();
 
         return $this->adminsAtivosGlobais;
+    }
+
+    protected function aplicarFiltroUsuariosDaCooperativa(Builder $query, int $cooperativaId): void
+    {
+        $query->where(function (Builder $subQuery) use ($cooperativaId): void {
+            $subQuery
+                ->whereHas('cooperativas', fn (Builder $cooperativaQuery) => $cooperativaQuery->where('cooperativas.id', $cooperativaId))
+                ->orWhere('cooperativa_id', $cooperativaId);
+        });
     }
 
     protected function dataLimiteCaso(Caso $caso, int $diasAntesPrazo): ?Carbon

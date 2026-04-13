@@ -17,8 +17,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
-use Throwable;
 use Illuminate\View\View;
+use Throwable;
 
 class CasoController extends Controller
 {
@@ -36,6 +36,7 @@ class CasoController extends Controller
         /** @var User $usuario */
         $usuario = $request->user();
         $isAdmin = EscopoCooperativa::isAdmin($usuario);
+        $cooperativasIdsUsuario = EscopoCooperativa::cooperativaIds($usuario);
 
         $query = Caso::query()
             ->with([
@@ -45,7 +46,7 @@ class CasoController extends Controller
             ]);
 
         if (! $isAdmin) {
-            $query->where('cooperativa_id', $usuario->cooperativa_id);
+            $this->aplicarEscopoCooperativas($query, $cooperativasIdsUsuario);
         }
 
         $this->aplicarFiltros($request, $query, $isAdmin);
@@ -69,7 +70,7 @@ class CasoController extends Controller
                 PrazoCasoService::STATUS_DENTRO_DO_PRAZO => 'Dentro do prazo',
                 PrazoCasoService::STATUS_IGUAL_AO_PRAZO => 'Igual ao prazo',
                 PrazoCasoService::STATUS_PRAZO_VENCIDO => 'Passou do prazo',
-                PrazoCasoService::STATUS_SEM_DISTRIBUICAO => 'Sem distribuição',
+                PrazoCasoService::STATUS_SEM_DISTRIBUICAO => 'Sem distribuicao',
             ],
             'diasPrazoConfigurado' => $this->prazoCasoService->obterDiasAntesPrazo(),
             'filtros' => $request->only([
@@ -114,7 +115,7 @@ class CasoController extends Controller
 
             return back()
                 ->withInput()
-                ->with('erro', 'Não foi possível salvar o caso. Verifique os dados informados.');
+                ->with('erro', 'Nao foi possivel salvar o caso. Verifique os dados informados.');
         }
 
         return redirect()
@@ -172,7 +173,7 @@ class CasoController extends Controller
 
             return back()
                 ->withInput()
-                ->with('erro', 'Não foi possível salvar as alterações do caso. Verifique os dados informados.');
+                ->with('erro', 'Nao foi possivel salvar as alteracoes do caso. Verifique os dados informados.');
         }
 
         return redirect()
@@ -189,12 +190,12 @@ class CasoController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
-            return back()->with('erro', 'Não foi possível excluir o caso.');
+            return back()->with('erro', 'Nao foi possivel excluir o caso.');
         }
 
         return redirect()
             ->route('casos.index')
-            ->with('status', 'Caso excluído com sucesso.');
+            ->with('status', 'Caso excluido com sucesso.');
     }
 
     protected function aplicarFiltros(Request $request, Builder $query, bool $isAdmin): void
@@ -268,13 +269,12 @@ class CasoController extends Controller
     protected function dadosFormulario(User $usuario, ?Caso $caso): array
     {
         $isAdmin = EscopoCooperativa::isAdmin($usuario);
-        $cooperativaAtualId = $caso?->cooperativa_id ?? $usuario->cooperativa_id;
+        $cooperativasPermitidas = $this->cooperativasPermitidas($usuario);
+        $cooperativaAtualId = $caso?->cooperativa_id ?? ($cooperativasPermitidas->first()?->id ?? null);
 
         return [
             'isAdmin' => $isAdmin,
-            'cooperativas' => $isAdmin
-                ? Cooperativa::query()->orderBy('nome')->get(['id', 'nome'])
-                : collect(),
+            'cooperativas' => $cooperativasPermitidas,
             'responsaveis' => $this->responsaveis($usuario, $cooperativaAtualId),
             'tiposStatus' => TipoStatus::query()->orderBy('ordem')->orderBy('nome')->get(['id', 'nome']),
             'tiposSubstatus' => TipoSubstatus::query()->orderBy('ordem')->orderBy('nome')->get(['id', 'nome']),
@@ -285,18 +285,85 @@ class CasoController extends Controller
     {
         $query = User::query()
             ->where('ativo', true)
-            ->whereNotNull('cooperativa_id')
-            ->with('cooperativa:id,nome')
+            ->with([
+                'cooperativa:id,nome',
+                'cooperativas:id,nome',
+            ])
             ->orderBy('name');
 
         if (EscopoCooperativa::isAdmin($usuario)) {
             if ($cooperativaId) {
-                $query->where('cooperativa_id', $cooperativaId);
+                $query->where(function (Builder $subQuery) use ($cooperativaId): void {
+                    $subQuery
+                        ->whereHas('cooperativas', fn (Builder $cooperativaQuery) => $cooperativaQuery->where('cooperativas.id', $cooperativaId))
+                        ->orWhere('cooperativa_id', $cooperativaId);
+                });
+            } else {
+                $query->where(function (Builder $subQuery): void {
+                    $subQuery->whereHas('cooperativas')
+                        ->orWhereNotNull('cooperativa_id');
+                });
             }
         } else {
-            $query->where('cooperativa_id', $usuario->cooperativa_id);
+            $cooperativasIds = EscopoCooperativa::cooperativaIds($usuario);
+            $this->aplicarEscopoResponsaveis($query, $cooperativasIds);
         }
 
         return $query->get(['id', 'name', 'cooperativa_id']);
+    }
+
+    /**
+     * @return Collection<int, Cooperativa>
+     */
+    protected function cooperativasPermitidas(User $usuario): Collection
+    {
+        if (EscopoCooperativa::isAdmin($usuario)) {
+            return Cooperativa::query()
+                ->orderBy('nome')
+                ->get(['id', 'nome']);
+        }
+
+        $cooperativasIds = EscopoCooperativa::cooperativaIds($usuario);
+
+        if ($cooperativasIds === []) {
+            return collect();
+        }
+
+        return Cooperativa::query()
+            ->whereIn('id', $cooperativasIds)
+            ->orderBy('nome')
+            ->get(['id', 'nome']);
+    }
+
+    /**
+     * @param array<int> $cooperativasIds
+     */
+    protected function aplicarEscopoCooperativas(Builder $query, array $cooperativasIds): void
+    {
+        if ($cooperativasIds === []) {
+            $query->whereRaw('1 = 0');
+
+            return;
+        }
+
+        $query->whereIn('cooperativa_id', $cooperativasIds);
+    }
+
+    /**
+     * @param array<int> $cooperativasIds
+     */
+    protected function aplicarEscopoResponsaveis(Builder $query, array $cooperativasIds): void
+    {
+        if ($cooperativasIds === []) {
+            $query->whereRaw('1 = 0');
+
+            return;
+        }
+
+        $query->where(function (Builder $subQuery) use ($cooperativasIds): void {
+            $subQuery
+                ->whereHas('cooperativas', fn (Builder $cooperativaQuery) => $cooperativaQuery->whereIn('cooperativas.id', $cooperativasIds))
+                ->orWhereIn('cooperativa_id', $cooperativasIds);
+        });
     }
 }

@@ -24,7 +24,7 @@
                             </div>
                         @else
                             <div class="md:col-span-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                                O relatório será gerado apenas com os dados da sua cooperativa.
+                                O relatório será gerado apenas com os dados das suas cooperativas vinculadas.
                             </div>
                         @endif
 

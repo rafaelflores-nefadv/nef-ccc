@@ -10,7 +10,7 @@
                     <p><strong>Usuário:</strong> {{ $usuario->name }}</p>
                     <p><strong>E-mail:</strong> {{ $usuario->email }}</p>
                     <p><strong>Perfil:</strong> {{ $usuario->perfil }}</p>
-                    <p><strong>Cooperativa:</strong> {{ $cooperativa }}</p>
+                    <p><strong>Cooperativas:</strong> {{ $cooperativa }}</p>
                 </div>
             </div>
 

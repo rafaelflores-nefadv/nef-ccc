@@ -121,10 +121,10 @@ class RelatorioCasoService
      */
     public function aplicarEscopoCooperativa(Builder $query, array $filtros, User $usuario): void
     {
-        $cooperativaIdUsuario = EscopoCooperativa::cooperativaId($usuario);
+        $cooperativasIdsUsuario = EscopoCooperativa::cooperativaIds($usuario);
 
-        if ($cooperativaIdUsuario !== null) {
-            $query->where('cooperativa_id', $cooperativaIdUsuario);
+        if ($cooperativasIdsUsuario !== []) {
+            $query->whereIn('cooperativa_id', $cooperativasIdsUsuario);
 
             return;
         }

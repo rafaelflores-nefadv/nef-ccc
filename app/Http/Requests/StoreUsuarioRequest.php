@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
 class StoreUsuarioRequest extends FormRequest
@@ -22,11 +23,15 @@ class StoreUsuarioRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
             'perfil' => ['required', 'string', Rule::in(User::PERFIS)],
-            'cooperativa_id' => [
+            'cooperativas' => [
                 'nullable',
-                'integer',
+                'array',
                 Rule::requiredIf(fn (): bool => (string) $this->input('perfil') !== User::PERFIL_ADMIN),
+            ],
+            'cooperativas.*' => [
+                'integer',
                 Rule::exists('cooperativas', 'id'),
+                'distinct',
             ],
             'papel_id' => [
                 'nullable',
@@ -34,7 +39,17 @@ class StoreUsuarioRequest extends FormRequest
                 Rule::requiredIf(fn (): bool => (string) $this->input('perfil') !== User::PERFIL_ADMIN),
                 Rule::exists('papeis', 'id'),
             ],
-            'password' => ['required', 'string', 'min:6'],
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
+            'password_confirmation' => ['required', 'string'],
             'ativo' => ['nullable', 'boolean'],
         ];
     }
@@ -42,14 +57,28 @@ class StoreUsuarioRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $perfil = (string) $this->input('perfil');
+        $cooperativas = collect((array) $this->input('cooperativas', []));
+
+        if ($cooperativas->isEmpty() && $this->filled('cooperativa_id')) {
+            $cooperativas->push($this->input('cooperativa_id'));
+        }
+
+        $cooperativasIds = $cooperativas
+            ->map(fn ($id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($perfil === User::PERFIL_ADMIN) {
+            $cooperativasIds = [];
+        }
 
         $this->merge([
             'name' => trim((string) $this->input('name')),
             'email' => mb_strtolower(trim((string) $this->input('email'))),
             'ativo' => $this->has('ativo') ? $this->boolean('ativo') : true,
-            'cooperativa_id' => $perfil === User::PERFIL_ADMIN
-                ? null
-                : ($this->filled('cooperativa_id') ? (int) $this->input('cooperativa_id') : null),
+            'cooperativas' => $cooperativasIds,
             'papel_id' => $perfil === User::PERFIL_ADMIN
                 ? null
                 : ($this->filled('papel_id') ? (int) $this->input('papel_id') : null),
@@ -62,18 +91,26 @@ class StoreUsuarioRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'O nome é obrigatório.',
-            'email.required' => 'O e-mail é obrigatório.',
-            'email.email' => 'Informe um e-mail válido.',
-            'email.unique' => 'Já existe um usuário com este e-mail.',
-            'perfil.required' => 'O perfil é obrigatório.',
-            'perfil.in' => 'O perfil selecionado é inválido.',
-            'cooperativa_id.required' => 'A cooperativa é obrigatória para este perfil.',
-            'cooperativa_id.exists' => 'A cooperativa selecionada é inválida.',
-            'papel_id.required' => 'O papel é obrigatório para este perfil.',
-            'papel_id.exists' => 'O papel selecionado é inválido.',
-            'password.required' => 'A senha é obrigatória.',
-            'password.min' => 'A senha deve ter no mínimo 6 caracteres.',
+            'name.required' => 'O nome e obrigatorio.',
+            'email.required' => 'O e-mail e obrigatorio.',
+            'email.email' => 'Informe um e-mail valido.',
+            'email.unique' => 'Ja existe um usuario com este e-mail.',
+            'perfil.required' => 'O perfil e obrigatorio.',
+            'perfil.in' => 'O perfil selecionado e invalido.',
+            'cooperativas.required' => 'Selecione ao menos uma cooperativa para este perfil.',
+            'cooperativas.array' => 'As cooperativas devem ser informadas em lista.',
+            'cooperativas.*.exists' => 'Uma das cooperativas selecionadas e invalida.',
+            'cooperativas.*.distinct' => 'Nao repita cooperativas na selecao.',
+            'papel_id.required' => 'O papel e obrigatorio para este perfil.',
+            'papel_id.exists' => 'O papel selecionado e invalido.',
+            'password.required' => 'A senha e obrigatoria.',
+            'password.confirmed' => 'A confirmacao de senha nao confere.',
+            'password.min' => 'A senha deve ter no minimo 8 caracteres.',
+            'password.letters' => 'A senha deve conter ao menos uma letra.',
+            'password.mixed' => 'A senha deve conter ao menos uma letra maiuscula e uma minuscula.',
+            'password.numbers' => 'A senha deve conter ao menos um numero.',
+            'password.symbols' => 'A senha deve conter ao menos um caractere especial.',
+            'password_confirmation.required' => 'A confirmacao de senha e obrigatoria.',
             'ativo.boolean' => 'O campo ativo deve ser verdadeiro ou falso.',
         ];
     }
@@ -87,9 +124,10 @@ class StoreUsuarioRequest extends FormRequest
             'name' => 'nome',
             'email' => 'e-mail',
             'perfil' => 'perfil',
-            'cooperativa_id' => 'cooperativa',
+            'cooperativas' => 'cooperativas',
             'papel_id' => 'papel',
             'password' => 'senha',
+            'password_confirmation' => 'confirmacao de senha',
             'ativo' => 'status',
         ];
     }

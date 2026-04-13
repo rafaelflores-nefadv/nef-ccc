@@ -22,9 +22,20 @@ class DashboardController extends Controller
         abort_if(! $usuario, 403);
         abort_if(! ControleAcesso::usuarioTemPermissao($usuario, 'dashboard.visualizar'), 403);
 
+        $usuario->loadMissing([
+            'cooperativas:id,nome',
+            'cooperativa:id,nome',
+        ]);
+
+        $cooperativasUsuario = $usuario->cooperativas->pluck('nome')->filter()->values();
+
+        if ($cooperativasUsuario->isEmpty() && $usuario->cooperativa?->nome) {
+            $cooperativasUsuario = collect([$usuario->cooperativa->nome]);
+        }
+
         $cooperativa = EscopoCooperativa::isAdmin($usuario)
             ? 'Todas as cooperativas'
-            : ($usuario?->cooperativa?->nome ?? 'Não vinculada');
+            : ($cooperativasUsuario->isEmpty() ? 'Nao vinculada' : $cooperativasUsuario->join(', '));
 
         return view('dashboard', [
             'usuario' => $usuario,

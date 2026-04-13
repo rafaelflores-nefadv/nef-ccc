@@ -20,31 +20,31 @@ class CasoPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->cooperativa_id !== null
+        return EscopoCooperativa::temCooperativa($user)
             && ControleAcesso::usuarioTemPermissao($user, 'casos.visualizar');
     }
 
     public function view(User $user, Caso $caso): bool
     {
-        return $user->cooperativa_id === $caso->cooperativa_id
+        return EscopoCooperativa::usuarioPertenceCooperativa($user, (int) $caso->cooperativa_id)
             && ControleAcesso::usuarioTemPermissao($user, 'casos.visualizar');
     }
 
     public function create(User $user): bool
     {
-        return $user->cooperativa_id !== null
+        return EscopoCooperativa::temCooperativa($user)
             && ControleAcesso::usuarioTemPermissao($user, 'casos.criar');
     }
 
     public function update(User $user, Caso $caso): bool
     {
-        return $user->cooperativa_id === $caso->cooperativa_id
+        return EscopoCooperativa::usuarioPertenceCooperativa($user, (int) $caso->cooperativa_id)
             && ControleAcesso::usuarioTemPermissao($user, 'casos.editar');
     }
 
     public function delete(User $user, Caso $caso): bool
     {
-        return $user->cooperativa_id === $caso->cooperativa_id
+        return EscopoCooperativa::usuarioPertenceCooperativa($user, (int) $caso->cooperativa_id)
             && ControleAcesso::usuarioTemPermissao($user, 'casos.excluir');
     }
 }

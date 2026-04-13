@@ -95,9 +95,13 @@ class StoreCasoRequest extends FormRequest
         $usuario = $this->user();
 
         if ($usuario && ! EscopoCooperativa::isAdmin($usuario)) {
-            $this->merge([
-                'cooperativa_id' => $usuario->cooperativa_id,
-            ]);
+            $cooperativasIds = EscopoCooperativa::cooperativaIds($usuario);
+
+            if (count($cooperativasIds) === 1 && ! $this->filled('cooperativa_id')) {
+                $this->merge([
+                    'cooperativa_id' => $cooperativasIds[0],
+                ]);
+            }
         }
 
         $this->merge([
@@ -117,7 +121,7 @@ class StoreCasoRequest extends FormRequest
 
             $cooperativaId = (int) $this->input('cooperativa_id');
 
-            if (! EscopoCooperativa::isAdmin($usuario) && $cooperativaId !== (int) $usuario->cooperativa_id) {
+            if (! EscopoCooperativa::usuarioPertenceCooperativa($usuario, $cooperativaId)) {
                 $validator->errors()->add('cooperativa_id', 'Cooperativa invalida para o usuario logado.');
 
                 return;
@@ -130,10 +134,11 @@ class StoreCasoRequest extends FormRequest
             }
 
             $responsavel = User::query()
+                ->with('cooperativas:id')
                 ->select(['id', 'cooperativa_id'])
                 ->find($responsavelId);
 
-            if (! $responsavel || (int) $responsavel->cooperativa_id !== $cooperativaId) {
+            if (! $responsavel || ! $responsavel->pertenceCooperativa($cooperativaId)) {
                 $validator->errors()->add('responsavel_id', 'O responsavel deve pertencer a cooperativa do caso.');
             }
         });
