@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="py-2">
-        <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-[96rem] space-y-6 sm:px-3 lg:px-4">
             <div class="flex items-center justify-end gap-4">
                 <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                     Prazo distribuição: {{ $diasPrazoConfigurado }} dia(s)
@@ -17,52 +17,20 @@
                 </a>
             </div>
 
-            <div class="rounded-xl bg-white shadow-sm">
-                <div class="p-6">
-                    <form method="GET" action="{{ route('casos.index') }}" class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div>
-                            <label for="codigo_caso" class="block text-sm font-medium text-gray-700">Código do caso</label>
-                            <input type="text" name="codigo_caso" id="codigo_caso" value="{{ $filtros['codigo_caso'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+            <div class="nf-filter-card p-5">
+                <form method="GET" action="{{ route('casos.index') }}" class="space-y-4">
+                    <div class="nf-filter-grid">
+                        <div class="nf-primary-search">
+                            <label for="busca_geral" class="block text-sm font-medium text-gray-700">Pesquisa geral</label>
+                            <input
+                                type="text"
+                                name="busca_geral"
+                                id="busca_geral"
+                                value="{{ $filtros['busca_geral'] ?? '' }}"
+                                placeholder="Código, nome, protocolo, prenotação, contrato ou comarca"
+                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                            >
                         </div>
-
-                        <div>
-                            <label for="numero_protocolo" class="block text-sm font-medium text-gray-700">Número de protocolo</label>
-                            <input type="text" name="numero_protocolo" id="numero_protocolo" value="{{ $filtros['numero_protocolo'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div>
-                            <label for="numero_prenotacao" class="block text-sm font-medium text-gray-700">Número de prenotação</label>
-                            <input type="text" name="numero_prenotacao" id="numero_prenotacao" value="{{ $filtros['numero_prenotacao'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div>
-                            <label for="contrato" class="block text-sm font-medium text-gray-700">Contrato</label>
-                            <input type="text" name="contrato" id="contrato" value="{{ $filtros['contrato'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div>
-                            <label for="nome" class="block text-sm font-medium text-gray-700">Nome</label>
-                            <input type="text" name="nome" id="nome" value="{{ $filtros['nome'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div>
-                            <label for="comarca" class="block text-sm font-medium text-gray-700">Comarca</label>
-                            <input type="text" name="comarca" id="comarca" value="{{ $filtros['comarca'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        @if ($isAdmin)
-                            <div>
-                                <label for="cooperativa_id" class="block text-sm font-medium text-gray-700">Cooperativa</label>
-                                <select name="cooperativa_id" id="cooperativa_id" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Todas</option>
-                                    @foreach ($cooperativas as $cooperativa)
-                                        <option value="{{ $cooperativa->id }}" @selected((string) ($filtros['cooperativa_id'] ?? '') === (string) $cooperativa->id)>
-                                            {{ $cooperativa->nome }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
 
                         <div>
                             <label for="tipo_status_id" class="block text-sm font-medium text-gray-700">Status</label>
@@ -89,38 +57,114 @@
                         </div>
 
                         <div>
-                            <label for="status_prazo_distribuicao" class="block text-sm font-medium text-gray-700">Prazo distribuição</label>
-                            <select name="status_prazo_distribuicao" id="status_prazo_distribuicao" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            <label for="pendente_faturamento" class="block text-sm font-medium text-gray-700">Pendente faturamento</label>
+                            <select name="pendente_faturamento" id="pendente_faturamento" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
                                 <option value="">Todos</option>
-                                @foreach ($statusPrazoOpcoes as $valor => $label)
-                                    <option value="{{ $valor }}" @selected((string) ($filtros['status_prazo_distribuicao'] ?? '') === (string) $valor)>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
+                                <option value="1" @selected((string) ($filtros['pendente_faturamento'] ?? '') === '1')>Pendente</option>
                             </select>
                         </div>
 
-                        <div class="flex flex-wrap items-end gap-3 md:col-span-3">
+                        @if ($isAdmin)
                             <div>
-                                <label for="per_page" class="block text-sm font-medium text-gray-700">Registros por página</label>
-                                <select name="per_page" id="per_page" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
-                                    @foreach ($perPageOptions as $opcao)
-                                        <option value="{{ $opcao }}" @selected((int) $perPage === (int) $opcao)>{{ $opcao }}</option>
+                                <label for="cooperativa_id" class="block text-sm font-medium text-gray-700">Cooperativa</label>
+                                <select name="cooperativa_id" id="cooperativa_id" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Todas</option>
+                                    @foreach ($cooperativas as $cooperativa)
+                                        <option value="{{ $cooperativa->id }}" @selected((string) ($filtros['cooperativa_id'] ?? '') === (string) $cooperativa->id)>
+                                            {{ $cooperativa->nome }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                                    <circle cx="11" cy="11" r="7" stroke-width="1.5" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 20l-3.5-3.5" />
-                                </svg>
-                                Buscar
-                            </button>
-                            <a href="{{ route('casos.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Limpar filtros</a>
+                            <div>
+                                <label for="status_prazo_distribuicao" class="block text-sm font-medium text-gray-700">Prazo distribuição</label>
+                                <select name="status_prazo_distribuicao" id="status_prazo_distribuicao" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Todos</option>
+                                    @foreach ($statusPrazoOpcoes as $valor => $label)
+                                        <option value="{{ $valor }}" @selected((string) ($filtros['status_prazo_distribuicao'] ?? '') === (string) $valor)>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+                    </div>
+
+                    <details class="nf-advanced-filters" @if (collect($filtros)->filter(fn ($valor, $chave) => ! in_array($chave, ['busca_geral', 'tipo_status_id', 'tipo_substatus_id', 'pendente_faturamento', 'cooperativa_id', 'status_prazo_distribuicao']) && filled($valor))->isNotEmpty()) open @endif>
+                        <summary>Mais filtros da pesquisa geral</summary>
+                        <div class="nf-advanced-content grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <label for="codigo_caso" class="block text-sm font-medium text-gray-700">Código do caso</label>
+                                <input type="text" name="codigo_caso" id="codigo_caso" value="{{ $filtros['codigo_caso'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="nome" class="block text-sm font-medium text-gray-700">Nome</label>
+                                <input type="text" name="nome" id="nome" value="{{ $filtros['nome'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="numero_protocolo" class="block text-sm font-medium text-gray-700">Número de protocolo</label>
+                                <input type="text" name="numero_protocolo" id="numero_protocolo" value="{{ $filtros['numero_protocolo'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="numero_prenotacao" class="block text-sm font-medium text-gray-700">Número de prenotação</label>
+                                <input type="text" name="numero_prenotacao" id="numero_prenotacao" value="{{ $filtros['numero_prenotacao'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="contrato" class="block text-sm font-medium text-gray-700">Contrato</label>
+                                <input type="text" name="contrato" id="contrato" value="{{ $filtros['contrato'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="comarca" class="block text-sm font-medium text-gray-700">Comarca</label>
+                                <input type="text" name="comarca" id="comarca" value="{{ $filtros['comarca'] ?? '' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
                         </div>
-                    </form>
-                </div>
+                    </details>
+
+                    <div class="nf-filter-actions">
+                        <div>
+                            <label for="per_page" class="block text-sm font-medium text-gray-700">Registros por página</label>
+                            <select name="per_page" id="per_page" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
+                                @foreach ($perPageOptions as $opcao)
+                                    <option value="{{ $opcao }}" @selected((int) $perPage === (int) $opcao)>{{ $opcao }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <button type="submit" class="nf-btn-brand inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition sm:w-auto">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7" stroke-width="1.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 20l-3.5-3.5" />
+                            </svg>
+                            Buscar
+                        </button>
+
+                        <a href="{{ route('casos.index') }}" class="nf-btn-soft inline-flex w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition sm:w-auto">
+                            Limpar filtros
+                        </a>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        @if (!empty($filtros['codigo_caso']))
+                            <span class="nf-chip">Código: {{ $filtros['codigo_caso'] }}</span>
+                        @endif
+                        @if (!empty($filtros['nome']))
+                            <span class="nf-chip">Nome: {{ $filtros['nome'] }}</span>
+                        @endif
+                        @if (!empty($filtros['contrato']))
+                            <span class="nf-chip">Contrato: {{ $filtros['contrato'] }}</span>
+                        @endif
+                        @if (!empty($filtros['comarca']))
+                            <span class="nf-chip">Comarca: {{ $filtros['comarca'] }}</span>
+                        @endif
+                    </div>
+                </form>
             </div>
 
             <div class="overflow-hidden rounded-xl bg-white shadow-sm">
@@ -148,6 +192,10 @@
                                         'prazo_vencido' => 'bg-rose-100 text-rose-700',
                                         default => 'bg-slate-100 text-slate-600',
                                     };
+
+                                    $badgePendenteFaturamento = $caso->pendente_faturamento
+                                        ? 'bg-amber-100 text-amber-700'
+                                        : 'bg-slate-100 text-slate-600';
 
                                     $labelStatusPrazo = match ($statusPrazo) {
                                         'dentro_do_prazo' => 'Dentro do prazo',
@@ -194,9 +242,13 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $caso->pendente_faturamento ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
-                                            {{ $caso->pendente_faturamento ? 'Pendente' : 'Não pendente' }}
-                                        </span>
+                                        @if ($caso->pendente_faturamento)
+                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $badgePendenteFaturamento }}">
+                                                Pendente
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-500">-</span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
                                         <div><span class="font-medium">Distribuição:</span> {{ optional($caso->distribuicao)->format('d/m/Y H:i') ?? '-' }}</div>

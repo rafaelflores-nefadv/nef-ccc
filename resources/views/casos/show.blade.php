@@ -56,11 +56,11 @@
                         };
                     @endphp
                     <h3 class="mb-4 text-lg font-semibold">Status e prazos</h3>
-                    <div class="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
+                    <div class="nf-status-highlight">
                         <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Prazo atual do caso</p>
                         <p class="text-lg font-semibold text-indigo-900">{{ optional($caso->data_prazo)->format('d/m/Y') ?? 'Não definido' }}</p>
                     </div>
-                    <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+                    <div class="nf-status-summary">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <p class="text-xs font-semibold uppercase tracking-wide text-slate-700">Prazo por distribuição ({{ $diasPrazoConfigurado }} dia(s))</p>
                             <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusPrazoClass }}">

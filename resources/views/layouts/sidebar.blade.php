@@ -113,16 +113,16 @@
     });
 @endphp
 
-<div class="fixed inset-y-0 left-0 z-40 w-64 transform bg-slate-900 text-slate-100 transition-transform duration-200 ease-out md:translate-x-0" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-    <div class="flex h-16 items-center border-b border-slate-800 px-6">
-        <a href="{{ route('dashboard') }}" class="text-sm font-semibold tracking-wide text-white">
+<div class="nf-sidebar fixed inset-y-0 left-0 z-40 w-64 transform text-slate-100 transition-transform duration-200 ease-out md:translate-x-0" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+    <div class="nf-sidebar-divider flex h-16 items-center border-b px-6">
+        <a href="{{ route('dashboard') }}" class="nf-sidebar-title text-sm font-semibold tracking-wide">
             {{ $nomeSistema ?? config('app.name', 'Sistema') }}
         </a>
     </div>
 
     <nav class="space-y-1 p-4">
         @foreach ($menu as $item)
-            <a href="{{ route($item['route']) }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all {{ $item['active'] ? 'bg-slate-700 text-white shadow-sm ring-1 ring-slate-500/60' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+            <a href="{{ route($item['route']) }}" class="nf-sidebar-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all {{ $item['active'] ? 'nf-sidebar-link-active' : '' }}">
                 <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                     {!! $item['icon'] !!}
                 </svg>

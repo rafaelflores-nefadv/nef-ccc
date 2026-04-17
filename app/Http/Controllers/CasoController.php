@@ -74,6 +74,7 @@ class CasoController extends Controller
             ],
             'diasPrazoConfigurado' => $this->prazoCasoService->obterDiasAntesPrazo(),
             'filtros' => $request->only([
+                'busca_geral',
                 'codigo_caso',
                 'numero_protocolo',
                 'numero_prenotacao',
@@ -83,6 +84,7 @@ class CasoController extends Controller
                 'cooperativa_id',
                 'tipo_status_id',
                 'tipo_substatus_id',
+                'pendente_faturamento',
                 'status_prazo_distribuicao',
             ]),
         ]);
@@ -204,6 +206,20 @@ class CasoController extends Controller
             $query->where('codigo_caso', 'ilike', '%'.$request->string('codigo_caso')->trim().'%');
         });
 
+        $query->when($request->filled('busca_geral'), function (Builder $query) use ($request): void {
+            $termo = $request->string('busca_geral')->trim();
+
+            $query->where(function (Builder $subQuery) use ($termo): void {
+                $subQuery
+                    ->where('codigo_caso', 'ilike', '%'.$termo.'%')
+                    ->orWhere('numero_protocolo', 'ilike', '%'.$termo.'%')
+                    ->orWhere('numero_prenotacao', 'ilike', '%'.$termo.'%')
+                    ->orWhere('contrato', 'ilike', '%'.$termo.'%')
+                    ->orWhere('nome', 'ilike', '%'.$termo.'%')
+                    ->orWhere('comarca', 'ilike', '%'.$termo.'%');
+            });
+        });
+
         $query->when($request->filled('numero_protocolo'), function (Builder $query) use ($request): void {
             $query->where('numero_protocolo', 'ilike', '%'.$request->string('numero_protocolo')->trim().'%');
         });
@@ -234,6 +250,10 @@ class CasoController extends Controller
 
         if ($request->filled('tipo_substatus_id')) {
             $query->where('tipo_substatus_id', (int) $request->input('tipo_substatus_id'));
+        }
+
+        if ($request->filled('pendente_faturamento')) {
+            $query->where('pendente_faturamento', filter_var($request->input('pendente_faturamento'), FILTER_VALIDATE_BOOLEAN));
         }
 
         $this->aplicarFiltroStatusPrazoDistribuicao($request, $query);

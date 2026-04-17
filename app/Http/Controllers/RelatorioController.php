@@ -81,6 +81,7 @@ class RelatorioController extends Controller
     protected function filtros(Request $request): array
     {
         return [
+            'busca_geral' => $request->input('busca_geral'),
             'cooperativa_id' => $request->input('cooperativa_id'),
             'codigo_caso' => $request->input('codigo_caso'),
             'numero_protocolo' => $request->input('numero_protocolo'),
@@ -91,6 +92,7 @@ class RelatorioController extends Controller
             'uf' => $request->input('uf'),
             'tipo_status_id' => $request->input('tipo_status_id'),
             'tipo_substatus_id' => $request->input('tipo_substatus_id'),
+            'pendente_faturamento' => $request->input('pendente_faturamento'),
             'responsavel_id' => $request->input('responsavel_id'),
             'arquivado' => $request->input('arquivado'),
             'data_prazo_inicial' => $request->input('data_prazo_inicial'),

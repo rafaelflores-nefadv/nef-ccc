@@ -6,12 +6,12 @@
     $notificacoesNaoLidasCount = (int) ($headerNotificacoesNaoLidasCount ?? 0);
 @endphp
 
-<header class="fixed left-0 right-0 top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur md:left-64">
+<header class="nf-main-header fixed left-0 right-0 top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur md:left-64">
     <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-3">
             <button
                 type="button"
-                class="inline-flex items-center justify-center rounded-lg border border-slate-300 p-2 text-slate-700 md:hidden"
+                class="inline-flex items-center justify-center rounded-lg border border-slate-500/60 bg-slate-900/40 p-2 text-slate-100 md:hidden"
                 @click="sidebarOpen = true"
                 aria-label="Abrir menu"
             >
@@ -20,14 +20,26 @@
                 </svg>
             </button>
 
-            <h1 class="text-lg font-semibold text-slate-900">{{ $pageTitle !== '' ? $pageTitle : ($nomeSistema ?? config('app.name', 'Sistema')) }}</h1>
+            <h1 class="text-lg font-semibold text-slate-100">{{ $pageTitle !== '' ? $pageTitle : ($nomeSistema ?? config('app.name', 'Sistema')) }}</h1>
         </div>
 
         <div class="flex items-center gap-3">
+            <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-xl border border-slate-500/60 bg-slate-900/40 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-100 shadow-sm transition hover:bg-slate-800/70"
+                onclick="window.toggleTheme && window.toggleTheme()"
+                aria-label="Alternar tema"
+            >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12.79A9 9 0 1111.21 3a7.5 7.5 0 009.79 9.79z" />
+                </svg>
+                <span data-theme-toggle-label>Dark mode</span>
+            </button>
+
             <div class="relative" x-data="{ open: false }">
                 <button
                     type="button"
-                    class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50"
+                    class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-500/60 bg-slate-900/40 text-slate-100 shadow-sm transition hover:bg-slate-800/70"
                     @click="open = !open"
                     aria-label="Abrir notificações"
                 >
@@ -43,7 +55,7 @@
                 </button>
 
                 <div
-                    class="absolute right-0 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg"
+                    class="absolute right-0 mt-2 w-80 overflow-hidden rounded-xl border border-slate-300 bg-white shadow-lg"
                     x-show="open"
                     @click.outside="open = false"
                     x-transition
@@ -105,12 +117,12 @@
             <div class="relative" x-data="{ open: false }">
                 <button
                     type="button"
-                    class="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                    class="inline-flex items-center gap-3 rounded-xl border border-slate-500/60 bg-slate-900/40 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm transition hover:bg-slate-800/70"
                     @click="open = !open"
                 >
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">{{ $initial }}</span>
                     <span class="hidden sm:inline">{{ $userName }}</span>
-                    <svg class="h-5 w-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <svg class="h-5 w-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9l-3.75 3.75L8.25 9" />
                     </svg>
                 </button>

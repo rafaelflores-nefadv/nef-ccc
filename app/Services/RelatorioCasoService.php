@@ -55,6 +55,21 @@ class RelatorioCasoService
      */
     public function aplicarFiltros(Builder $query, array $filtros): void
     {
+        if (! empty($filtros['busca_geral'])) {
+            $termo = trim((string) $filtros['busca_geral']);
+
+            $query->where(function (Builder $subQuery) use ($termo): void {
+                $subQuery
+                    ->where('codigo_caso', 'ilike', '%'.$termo.'%')
+                    ->orWhere('numero_protocolo', 'ilike', '%'.$termo.'%')
+                    ->orWhere('numero_prenotacao', 'ilike', '%'.$termo.'%')
+                    ->orWhere('contrato', 'ilike', '%'.$termo.'%')
+                    ->orWhere('nome', 'ilike', '%'.$termo.'%')
+                    ->orWhere('comarca', 'ilike', '%'.$termo.'%')
+                    ->orWhere('uf', 'ilike', '%'.$termo.'%');
+            });
+        }
+
         if (! empty($filtros['codigo_caso'])) {
             $query->where('codigo_caso', 'ilike', '%'.trim((string) $filtros['codigo_caso']).'%');
         }
@@ -89,6 +104,10 @@ class RelatorioCasoService
 
         if (! empty($filtros['tipo_substatus_id'])) {
             $query->where('tipo_substatus_id', (int) $filtros['tipo_substatus_id']);
+        }
+
+        if (array_key_exists('pendente_faturamento', $filtros) && $filtros['pendente_faturamento'] !== '') {
+            $query->where('pendente_faturamento', filter_var($filtros['pendente_faturamento'], FILTER_VALIDATE_BOOLEAN));
         }
 
         if (! empty($filtros['responsavel_id'])) {
