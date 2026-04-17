@@ -82,9 +82,23 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
+                        @php
+                            $badgePendenteFaturamentoClass = $caso->pendente_faturamento
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-emerald-100 text-emerald-700';
+                            $badgePendenteFaturamentoLabel = $caso->pendente_faturamento
+                                ? 'Pendente'
+                                : 'Não pendente';
+                        @endphp
                         <div><strong>Status:</strong> {{ $caso->tipoStatus?->nome ?? '-' }}</div>
                         <div><strong>Substatus:</strong> {{ $caso->tipoSubstatus?->nome ?? '-' }}</div>
                         <div><strong>Arquivado:</strong> {{ $caso->arquivado ? 'Sim' : 'Não' }}</div>
+                        <div>
+                            <strong>Pendente de faturamento:</strong>
+                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $badgePendenteFaturamentoClass }}">
+                                {{ $badgePendenteFaturamentoLabel }}
+                            </span>
+                        </div>
                         <div><strong>Dias configurados (distribuição):</strong> {{ $diasPrazoConfigurado }}</div>
                         <div><strong>Data alteração status:</strong> {{ optional($caso->data_alteracao_status)->format('d/m/Y') ?? '-' }}</div>
                         <div><strong>Data alteração substatus:</strong> {{ optional($caso->data_alteracao_substatus)->format('d/m/Y') ?? '-' }}</div>

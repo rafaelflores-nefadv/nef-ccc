@@ -128,23 +128,14 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100">
                             <tr>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Código</th>
-                                @if ($isAdmin)
-                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Cooperativa</th>
-                                @endif
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Protocolo</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Prenotação</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Contrato</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Nome</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Comarca</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Status</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Substatus</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Distribuição</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Limite</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Prazo distribuição</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Dias</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Prazo manual</th>
-                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Ações</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Caso</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Cliente / Contrato</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Comarca / UF</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Protocolo / Prenotação</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Fluxo</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Pendente faturamento</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Prazos</th>
+                                <th class="sticky right-0 z-10 px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 bg-gray-100">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
@@ -173,27 +164,52 @@
                                     };
                                 @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-2 text-sm text-gray-900">{{ $caso->codigo_caso }}</td>
-                                    @if ($isAdmin)
-                                        <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->cooperativa?->nome ?? '-' }}</td>
-                                    @endif
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->numero_protocolo ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->numero_prenotacao ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->contrato }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->nome ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->comarca ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->tipoStatus?->nome ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $caso->tipoSubstatus?->nome ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ optional($caso->distribuicao)->format('d/m/Y H:i') ?? '-' }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ optional($caso->data_limite_prazo)->format('d/m/Y') ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-900">
+                                        <div class="font-semibold text-gray-900">{{ $caso->codigo_caso }}</div>
+                                        @if ($isAdmin)
+                                            <div class="text-xs text-gray-500">{{ $caso->cooperativa?->nome ?? '-' }}</div>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $badgeStatusPrazo }}">
-                                            {{ $labelStatusPrazo }}
+                                        <div>{{ $caso->nome ?? '-' }}</div>
+                                        <div class="text-xs text-gray-500">Contrato: {{ $caso->contrato }}</div>
+                                        <div class="text-xs text-gray-500">Responsável: {{ $caso->responsavel?->name ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        <div>{{ $caso->comarca ?? '-' }}</div>
+                                        <div class="text-xs text-gray-500">UF: {{ $caso->uf ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        <div>{{ $caso->numero_protocolo ?? '-' }}</div>
+                                        <div class="text-xs text-gray-500">Prenotação: {{ $caso->numero_prenotacao ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        <div class="mb-1">
+                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-700">
+                                                Status: {{ $caso->tipoStatus?->nome ?? '-' }}
+                                            </span>
+                                        </div>
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700">
+                                            Substatus: {{ $caso->tipoSubstatus?->nome ?? '-' }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $descricaoDias }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ optional($caso->data_prazo)->format('d/m/Y') ?? '-' }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $caso->pendente_faturamento ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
+                                            {{ $caso->pendente_faturamento ? 'Pendente' : 'Não pendente' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        <div><span class="font-medium">Distribuição:</span> {{ optional($caso->distribuicao)->format('d/m/Y H:i') ?? '-' }}</div>
+                                        <div class="text-xs text-gray-500">Limite: {{ optional($caso->data_limite_prazo)->format('d/m/Y') ?? '-' }}</div>
+                                        <div class="mt-1">
+                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $badgeStatusPrazo }}">
+                                                {{ $labelStatusPrazo }}
+                                            </span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">Dias: {{ $descricaoDias }}</div>
+                                        <div class="text-xs text-gray-500">Prazo manual: {{ optional($caso->data_prazo)->format('d/m/Y') ?? '-' }}</div>
+                                    </td>
+                                    <td class="sticky right-0 bg-white px-4 py-2 text-sm text-gray-700">
                                         <div class="flex items-center gap-2">
                                             <a href="{{ route('casos.show', $caso) }}" class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2.5 py-1.5 text-indigo-700 transition hover:bg-indigo-100">
                                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12z" /><circle cx="12" cy="12" r="3" stroke-width="1.5" /></svg>
@@ -216,7 +232,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ $isAdmin ? 15 : 14 }}" class="px-4 py-8 text-center">
+                                    <td colspan="8" class="px-4 py-8 text-center">
                                         <svg class="mx-auto h-10 w-10 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 9h16.5m-16.5 0a2.25 2.25 0 00-2.25 2.25v7.5A2.25 2.25 0 003.75 21h16.5a2.25 2.25 0 002.25-2.25v-7.5A2.25 2.25 0 0020.25 9m-16.5 0V6.75A2.25 2.25 0 016 4.5h12a2.25 2.25 0 012.25 2.25V9" />
                                         </svg>
