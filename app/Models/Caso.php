@@ -82,6 +82,7 @@ class Caso extends Model
         'parecer',
         'data_ultimo_andamento',
         'arquivado',
+        'pendente_faturamento',
     ];
 
     /**
@@ -107,6 +108,7 @@ class Caso extends Model
             'data_segundo_leilao' => 'date',
             'data_ultimo_andamento' => 'datetime',
             'arquivado' => 'boolean',
+            'pendente_faturamento' => 'boolean',
         ];
     }
 

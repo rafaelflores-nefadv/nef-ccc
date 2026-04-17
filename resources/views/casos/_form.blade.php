@@ -4,6 +4,7 @@
     $cooperativaSelecionada = old('cooperativa_id', $caso->cooperativa_id ?? $cooperativaPadrao);
     $mostrarSelecaoCooperativa = $isAdmin || $cooperativasDisponiveis->count() > 1;
     $arquivadoValor = old('arquivado', $caso->arquivado ?? false);
+    $pendenteFaturamentoValor = old('pendente_faturamento', $caso->pendente_faturamento ?? false);
     $inputClass = 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500';
     $distribuicaoValor = old('distribuicao');
 
@@ -17,6 +18,17 @@
         }
     }
 @endphp
+
+<div class="mb-4 flex justify-end">
+    <div>
+        <input type="hidden" name="pendente_faturamento" value="0">
+        <label class="inline-flex items-center">
+            <input type="checkbox" name="pendente_faturamento" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" @checked((bool) $pendenteFaturamentoValor)>
+            <span class="ms-2 text-sm text-gray-600">Pendente de faturamento</span>
+        </label>
+        <x-input-error :messages="$errors->get('pendente_faturamento')" class="mt-2" />
+    </div>
+</div>
 
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     @if ($mostrarSelecaoCooperativa)

@@ -87,6 +87,7 @@ class StoreCasoRequest extends FormRequest
             'data_segundo_leilao' => ['nullable', 'date', 'after_or_equal:data_primeiro_leilao'],
             'parecer' => ['nullable', 'string'],
             'arquivado' => ['nullable', 'boolean'],
+            'pendente_faturamento' => ['nullable', 'boolean'],
         ];
     }
 
