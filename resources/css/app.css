@@ -46,6 +46,26 @@ body.theme-shell {
     z-index: 50;
 }
 
+.nf-auth-shell {
+    background:
+        radial-gradient(920px 260px at 12% 16%, rgba(59, 130, 246, 0.22), transparent 62%),
+        radial-gradient(860px 260px at 26% 78%, rgba(14, 165, 233, 0.16), transparent 66%),
+        #0f172a;
+}
+
+.nf-auth-card {
+    border-color: #d9e1ee;
+    background: rgba(255, 255, 255, 0.96);
+    color: #0f172a;
+}
+
+@media (max-width: 640px) {
+    .nf-auth-card {
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+}
+
 .nf-filter-card {
     border: 1px solid var(--nf-border);
     border-radius: 0.9rem;
@@ -264,6 +284,40 @@ body.theme-shell textarea:focus {
 :root.dark .nf-status-summary {
     border-color: #334155;
     background: #1a2538;
+}
+
+:root.dark .nf-auth-card {
+    border-color: var(--nf-border) !important;
+    background: rgba(18, 27, 43, 0.96) !important;
+    color: #e5e7eb;
+}
+
+:root.dark .nf-auth-card .text-slate-900,
+:root.dark .nf-auth-card .text-gray-900,
+:root.dark .nf-auth-card .text-slate-800,
+:root.dark .nf-auth-card .text-gray-800,
+:root.dark .nf-auth-card .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+:root.dark .nf-auth-card .text-slate-600,
+:root.dark .nf-auth-card .text-gray-600,
+:root.dark .nf-auth-card .text-slate-500,
+:root.dark .nf-auth-card .text-gray-500 {
+    color: #94a3b8 !important;
+}
+
+:root.dark .nf-auth-card input,
+:root.dark .nf-auth-card select,
+:root.dark .nf-auth-card textarea {
+    background-color: #0f172a;
+    color: #e5e7eb;
+    border-color: var(--nf-border);
+}
+
+:root.dark .nf-auth-card input::placeholder,
+:root.dark .nf-auth-card textarea::placeholder {
+    color: #94a3b8;
 }
 
 :root.dark .bg-white {

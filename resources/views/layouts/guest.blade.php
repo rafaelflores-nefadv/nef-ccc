@@ -14,7 +14,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
+    <body class="nf-auth-shell min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
         <div class="relative min-h-screen overflow-hidden">
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 lg:w-[52%]"></div>
             <div class="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-blue-400/25 blur-3xl"></div>
@@ -35,7 +35,7 @@
                     </div>
                 </div>
 
-                <div class="w-full rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-2xl backdrop-blur sm:p-8">
+                <div class="nf-auth-card w-full rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-2xl backdrop-blur sm:p-8">
                     {{ $slot }}
                 </div>
             </div>
