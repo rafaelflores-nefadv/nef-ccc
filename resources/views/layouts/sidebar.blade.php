@@ -115,7 +115,10 @@
 
 <div class="nf-sidebar fixed inset-y-0 left-0 z-40 w-64 transform text-slate-100 transition-transform duration-200 ease-out md:translate-x-0" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     <div class="nf-sidebar-divider flex h-16 items-center border-b px-6">
-        <a href="{{ route('dashboard') }}" class="nf-sidebar-title text-sm font-semibold tracking-wide">
+        <a href="{{ route('dashboard') }}" class="nf-sidebar-title inline-flex items-center gap-2 text-sm font-semibold tracking-wide">
+            @if (!empty($logoSistemaUrl))
+                <img src="{{ $logoSistemaUrl }}" alt="Logo do sistema" class="h-7 w-7 shrink-0 rounded object-contain" />
+            @endif
             {{ $nomeSistema ?? config('app.name', 'Sistema') }}
         </a>
     </div>

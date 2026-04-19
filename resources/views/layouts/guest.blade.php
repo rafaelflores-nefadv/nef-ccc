@@ -16,9 +16,9 @@
     </head>
     <body class="nf-auth-shell min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
         <div class="relative min-h-screen overflow-hidden">
-            <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 lg:w-[52%]"></div>
-            <div class="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-blue-400/25 blur-3xl"></div>
-            <div class="pointer-events-none absolute left-[18%] top-[55%] h-72 w-72 rounded-full bg-sky-500/20 blur-3xl"></div>
+            <div class="nf-auth-panel-bg pointer-events-none absolute inset-0 lg:w-[52%]"></div>
+            <div class="nf-auth-glow-a pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full blur-3xl"></div>
+            <div class="nf-auth-glow-b pointer-events-none absolute left-[18%] top-[55%] h-72 w-72 rounded-full blur-3xl"></div>
 
             <div class="relative mx-auto grid min-h-screen w-full max-w-7xl items-center px-4 py-8 sm:px-8 lg:grid-cols-[1fr_minmax(420px,520px)] lg:gap-16 lg:px-12">
                 <div class="hidden text-slate-100 lg:block">

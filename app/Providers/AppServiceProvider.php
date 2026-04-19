@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Illuminate\View\View as BladeView;
@@ -57,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class, UsuarioPolicy::class);
 
         View::share('nomeSistema', $this->resolverNomeSistema());
+        View::share('logoSistemaUrl', $this->resolverLogoSistemaUrl());
 
         View::composer('layouts.header', function (BladeView $view): void {
             $usuario = Auth::user();
@@ -95,6 +97,35 @@ class AppServiceProvider extends ServiceProvider
             return $nomeSistemaNormalizado !== '' ? $nomeSistemaNormalizado : $fallback;
         } catch (Throwable) {
             return $fallback;
+        }
+    }
+
+    protected function resolverLogoSistemaUrl(): ?string
+    {
+        $fallbackLogo = public_path('images/logo-nef.jpg');
+
+        try {
+            if (! Schema::hasTable('configuracoes_gerais') || ! Schema::hasColumn('configuracoes_gerais', 'logo_path')) {
+                return file_exists($fallbackLogo) ? asset('images/logo-nef.jpg') : null;
+            }
+
+            $logoPath = ConfiguracaoGeral::query()
+                ->whereKey(1)
+                ->value('logo_path');
+
+            $logoPathNormalizado = Str::of((string) $logoPath)->trim()->value();
+
+            if ($logoPathNormalizado === '') {
+                return file_exists($fallbackLogo) ? asset('images/logo-nef.jpg') : null;
+            }
+
+            if (Str::startsWith($logoPathNormalizado, ['http://', 'https://', '/'])) {
+                return $logoPathNormalizado;
+            }
+
+            return Storage::url($logoPathNormalizado);
+        } catch (Throwable) {
+            return file_exists($fallbackLogo) ? asset('images/logo-nef.jpg') : null;
         }
     }
 }
