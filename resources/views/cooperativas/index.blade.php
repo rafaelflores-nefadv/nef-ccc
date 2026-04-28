@@ -85,7 +85,15 @@
                                                 Editar
                                             </a>
 
-                                            <form method="POST" action="{{ route('cooperativas.status', $cooperativa) }}" onsubmit="return confirm('{{ $cooperativa->ativo ? 'Tem certeza de que deseja desativar esta cooperativa?' : 'Tem certeza de que deseja ativar esta cooperativa?' }}');">
+                                            <form
+                                                method="POST"
+                                                action="{{ route('cooperativas.status', $cooperativa) }}"
+                                                data-confirm="true"
+                                                data-confirm-title="{{ $cooperativa->ativo ? 'Desativar cooperativa' : 'Ativar cooperativa' }}"
+                                                data-confirm-message="{{ $cooperativa->ativo ? 'Tem certeza de que deseja desativar esta cooperativa?' : 'Tem certeza de que deseja ativar esta cooperativa?' }}"
+                                                data-confirm-text="{{ $cooperativa->ativo ? 'Desativar' : 'Ativar' }}"
+                                                data-confirm-variant="{{ $cooperativa->ativo ? 'danger' : 'primary' }}"
+                                            >
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="ativo" value="{{ $cooperativa->ativo ? '0' : '1' }}">

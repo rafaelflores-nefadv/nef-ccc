@@ -163,6 +163,12 @@ class ConfiguracaoController extends Controller
 
         try {
             $dados = $request->validated();
+            $dados['canal_email_ativo'] = $request->has('canal_email_ativo');
+            $dados['canal_whatsapp_ativo'] = $request->has('canal_whatsapp_ativo');
+            $dados['notificar_prazo_vencendo'] = $request->has('notificar_prazo_vencendo');
+            $dados['notificar_prazo_vencido'] = $request->has('notificar_prazo_vencido');
+            $dados['notificar_leilao'] = $request->has('notificar_leilao');
+            $dados['notificar_novo_andamento'] = $request->has('notificar_novo_andamento');
             $destinatarios = $this->destinatariosNotificacaoAutomaticos();
 
             $dados['emails_destino_json'] = $destinatarios['emails_destino_json'];

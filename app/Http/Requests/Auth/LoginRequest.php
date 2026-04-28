@@ -66,8 +66,15 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $email = $this->string('email')->lower()->toString();
+        $password = (string) $this->input('password');
+
         try {
-            $authenticated = Auth::attempt($this->only('email', 'password'), $this->boolean('remember'));
+            $authenticated = Auth::attempt([
+                'email' => $email,
+                'password' => $password,
+                'ativo' => true,
+            ], $this->boolean('remember'));
         } catch (RuntimeException $exception) {
             if (! str_contains($exception->getMessage(), 'does not use the Bcrypt algorithm')) {
                 throw $exception;
@@ -76,15 +83,33 @@ class LoginRequest extends FormRequest
             $authenticated = false;
         }
 
-        if (! $authenticated) {
-            RateLimiter::hit($this->throttleKey());
+        if ($authenticated) {
+            RateLimiter::clear($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+            return;
         }
 
-        RateLimiter::clear($this->throttleKey());
+        try {
+            $usuarioInativoComSenhaCorreta = Auth::validate([
+                'email' => $email,
+                'password' => $password,
+                'ativo' => false,
+            ]);
+        } catch (RuntimeException $exception) {
+            if (! str_contains($exception->getMessage(), 'does not use the Bcrypt algorithm')) {
+                throw $exception;
+            }
+
+            $usuarioInativoComSenhaCorreta = false;
+        }
+
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => $usuarioInativoComSenhaCorreta
+                ? 'Usuário inativo. Entre em contato com o administrador.'
+                : trans('auth.failed'),
+        ]);
     }
 
     /**

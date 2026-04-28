@@ -69,6 +69,15 @@ class PrazoNotificacaoService
         $emailConfig = $this->obterConfiguracaoEmailAtiva($configuracao);
         $configuracaoWhatsappId = $this->obterConfiguracaoWhatsappAtivaId($configuracao);
 
+        Log::info('Rotina de notificacao de prazos iniciada.', [
+            'data_referencia' => $referencia->toDateString(),
+            'cooperativa_id' => $cooperativaId,
+            'eventos_ativos' => $resumo['eventos_ativos'],
+            'usuarios_destino_configurados' => count($usuariosDestino),
+            'canal_email_ativo' => (bool) $configuracao->canal_email_ativo,
+            'canal_whatsapp_ativo' => (bool) $configuracao->canal_whatsapp_ativo,
+        ]);
+
         if ($eventos === []) {
             $resumo['mensagem'] = sprintf(
                 'Nenhum evento de prazo ativo para notificacao. Flags atuais: notificar_prazo_vencendo=%s, notificar_prazo_vencido=%s.',
@@ -157,6 +166,12 @@ class PrazoNotificacaoService
                 $destinatarios = $this->destinatariosCaso($caso);
 
                 if ($destinatarios->isEmpty()) {
+                    Log::info('Caso sem destinatarios elegiveis para notificacao.', [
+                        'caso_id' => (int) $caso->id,
+                        'cooperativa_id' => (int) $caso->cooperativa_id,
+                        'tipo_evento' => $evento['tipo'],
+                    ]);
+
                     $resumo['casos_sem_destinatario']++;
                     $resumoEvento['casos_sem_destinatario']++;
                     continue;
@@ -297,6 +312,15 @@ class PrazoNotificacaoService
                 conteudo: (string) $mensagem['texto_email'],
                 configuracaoEmail: $emailConfig
             );
+
+            Log::info('E-mail de notificacao de prazo enfileirado.', [
+                'tipo' => $tipoEvento,
+                'envio_id' => (int) $registro->id,
+                'caso_id' => (int) $caso->id,
+                'user_id' => (int) $destinatario->id,
+                'email' => (string) $destinatario->email,
+                'data_referencia' => $dataLimite->toDateString(),
+            ]);
 
             $resumo['emails_enfileirados']++;
             $resumoEvento['emails_enfileirados']++;

@@ -8,7 +8,7 @@ class UsuarioPolicy
 {
     public function before(User $user, string $ability): ?bool
     {
-        if ($user->isAdmin()) {
+        if ($ability !== 'delete' && $user->isAdmin()) {
             return true;
         }
 
@@ -33,5 +33,18 @@ class UsuarioPolicy
     public function update(User $user, User $model): bool
     {
         return false;
+    }
+
+    public function delete(User $authUser, User $user): bool
+    {
+        if (! $authUser->isAdmin()) {
+            return false;
+        }
+
+        if ($authUser->id === $user->id) {
+            return false;
+        }
+
+        return ! $user->ativo;
     }
 }

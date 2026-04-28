@@ -1,8 +1,16 @@
 @php
     $inputClass = 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500';
+    $oldInput = session()->getOldInput();
+    $isChecked = static function (string $campo, bool $valorAtual = false) use ($oldInput): bool {
+        if (is_array($oldInput) && array_key_exists($campo, $oldInput)) {
+            return filter_var($oldInput[$campo], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return $valorAtual;
+    };
 @endphp
 
-<form method="POST" action="{{ route('configuracoes.notificacoes.update') }}" class="space-y-5">
+<form method="POST" action="{{ route('configuracoes.notificacoes.update') }}" class="space-y-5" data-notificacoes-form="true">
     @csrf
     @method('PATCH')
 
@@ -14,21 +22,18 @@
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-            <input type="hidden" name="canal_email_ativo" value="0">
-            <input type="checkbox" name="canal_email_ativo" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" @checked((bool) old('canal_email_ativo', $configuracaoNotificacao->canal_email_ativo))>
+        <label for="canal_email_ativo" class="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input id="canal_email_ativo" type="checkbox" name="canal_email_ativo" value="1" data-notificacoes-checkbox="true" class="input-checkbox h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 focus:ring-blue-500" @checked($isChecked('canal_email_ativo', (bool) $configuracaoNotificacao->canal_email_ativo))>
             Ativar canal de e-mail
         </label>
 
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-            <input type="hidden" name="canal_whatsapp_ativo" value="0">
-            <input type="checkbox" name="canal_whatsapp_ativo" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" @checked((bool) old('canal_whatsapp_ativo', $configuracaoNotificacao->canal_whatsapp_ativo))>
+        <label for="canal_whatsapp_ativo" class="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input id="canal_whatsapp_ativo" type="checkbox" name="canal_whatsapp_ativo" value="1" data-notificacoes-checkbox="true" class="input-checkbox h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 focus:ring-blue-500" @checked($isChecked('canal_whatsapp_ativo', (bool) $configuracaoNotificacao->canal_whatsapp_ativo))>
             Ativar canal de WhatsApp
         </label>
 
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-            <input type="hidden" name="notificar_prazo_vencendo" value="0">
-            <input type="checkbox" name="notificar_prazo_vencendo" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" @checked((bool) old('notificar_prazo_vencendo', $configuracaoNotificacao->notificar_prazo_vencendo))>
+        <label for="notificar_prazo_vencendo" class="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input id="notificar_prazo_vencendo" type="checkbox" name="notificar_prazo_vencendo" value="1" data-notificacoes-checkbox="true" class="input-checkbox h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 focus:ring-blue-500" @checked($isChecked('notificar_prazo_vencendo', (bool) $configuracaoNotificacao->notificar_prazo_vencendo))>
             Notificar prazo vencendo
         </label>
 
@@ -38,21 +43,18 @@
             <x-input-error :messages="$errors->get('dias_antes_prazo')" class="mt-2" />
         </div>
 
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-            <input type="hidden" name="notificar_prazo_vencido" value="0">
-            <input type="checkbox" name="notificar_prazo_vencido" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" @checked((bool) old('notificar_prazo_vencido', $configuracaoNotificacao->notificar_prazo_vencido))>
+        <label for="notificar_prazo_vencido" class="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input id="notificar_prazo_vencido" type="checkbox" name="notificar_prazo_vencido" value="1" data-notificacoes-checkbox="true" class="input-checkbox h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 focus:ring-blue-500" @checked($isChecked('notificar_prazo_vencido', (bool) $configuracaoNotificacao->notificar_prazo_vencido))>
             Notificar prazo vencido
         </label>
 
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-            <input type="hidden" name="notificar_leilao" value="0">
-            <input type="checkbox" name="notificar_leilao" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" @checked((bool) old('notificar_leilao', $configuracaoNotificacao->notificar_leilao))>
+        <label for="notificar_leilao" class="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input id="notificar_leilao" type="checkbox" name="notificar_leilao" value="1" data-notificacoes-checkbox="true" class="input-checkbox h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 focus:ring-blue-500" @checked($isChecked('notificar_leilao', (bool) $configuracaoNotificacao->notificar_leilao))>
             Notificar leilão
         </label>
 
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700 md:col-span-2">
-            <input type="hidden" name="notificar_novo_andamento" value="0">
-            <input type="checkbox" name="notificar_novo_andamento" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" @checked((bool) old('notificar_novo_andamento', $configuracaoNotificacao->notificar_novo_andamento))>
+        <label for="notificar_novo_andamento" class="inline-flex items-center gap-2 text-sm text-gray-700 md:col-span-2">
+            <input id="notificar_novo_andamento" type="checkbox" name="notificar_novo_andamento" value="1" data-notificacoes-checkbox="true" class="input-checkbox h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 focus:ring-blue-500" @checked($isChecked('notificar_novo_andamento', (bool) $configuracaoNotificacao->notificar_novo_andamento))>
             Notificar novo andamento
         </label>
     </div>
@@ -64,4 +66,3 @@
         </button>
     </div>
 </form>
-

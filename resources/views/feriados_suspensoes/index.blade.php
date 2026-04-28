@@ -115,7 +115,15 @@
                                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.862 3.487a2.121 2.121 0 113 3L7.5 18.85l-4.5 1.5 1.5-4.5 12.362-12.363z" /></svg>
                                                 Editar
                                             </a>
-                                            <form method="POST" action="{{ route('feriados_suspensoes.destroy', $registro) }}" onsubmit="return confirm('Tem certeza de que deseja excluir este registro?\nEsta ação não poderá ser desfeita.');">
+                                            <form
+                                                method="POST"
+                                                action="{{ route('feriados_suspensoes.destroy', $registro) }}"
+                                                data-confirm="true"
+                                                data-confirm-title="Excluir registro"
+                                                data-confirm-message="Tem certeza de que deseja excluir este registro? Esta ação não poderá ser desfeita."
+                                                data-confirm-text="Excluir"
+                                                data-confirm-variant="danger"
+                                            >
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-red-50 px-2.5 py-1.5 text-red-700 transition hover:bg-red-100">

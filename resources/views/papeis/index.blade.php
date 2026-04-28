@@ -94,7 +94,15 @@
                                                 Editar
                                             </a>
 
-                                            <form method="POST" action="{{ route('papeis.status', $papel) }}" onsubmit="return confirm('{{ $papel->ativo ? 'Tem certeza de que deseja desativar este papel?' : 'Tem certeza de que deseja ativar este papel?' }}');">
+                                            <form
+                                                method="POST"
+                                                action="{{ route('papeis.status', $papel) }}"
+                                                data-confirm="true"
+                                                data-confirm-title="{{ $papel->ativo ? 'Desativar papel' : 'Ativar papel' }}"
+                                                data-confirm-message="{{ $papel->ativo ? 'Tem certeza de que deseja desativar este papel?' : 'Tem certeza de que deseja ativar este papel?' }}"
+                                                data-confirm-text="{{ $papel->ativo ? 'Desativar' : 'Ativar' }}"
+                                                data-confirm-variant="{{ $papel->ativo ? 'danger' : 'primary' }}"
+                                            >
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="ativo" value="{{ $papel->ativo ? '0' : '1' }}">

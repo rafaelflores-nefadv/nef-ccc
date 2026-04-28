@@ -13,6 +13,10 @@ class ControleAcesso
 
     public static function usuarioTemPermissao(User $user, string $slug): bool
     {
+        if (! $user->ativo) {
+            return false;
+        }
+
         if (self::usuarioEhAdmin($user)) {
             return true;
         }
@@ -20,10 +24,6 @@ class ControleAcesso
         $slug = trim($slug);
 
         if ($slug === '') {
-            return false;
-        }
-
-        if (! $user->ativo) {
             return false;
         }
 
@@ -48,6 +48,10 @@ class ControleAcesso
      */
     public static function usuarioTemAlgumaPermissao(User $user, array $slugs): bool
     {
+        if (! $user->ativo) {
+            return false;
+        }
+
         if (self::usuarioEhAdmin($user)) {
             return true;
         }
@@ -55,10 +59,6 @@ class ControleAcesso
         $slugsValidos = array_values(array_filter(array_map('trim', $slugs)));
 
         if ($slugsValidos === []) {
-            return false;
-        }
-
-        if (! $user->ativo) {
             return false;
         }
 

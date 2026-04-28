@@ -138,4 +138,13 @@ class User extends Authenticatable
 
         return in_array((int) $cooperativaId, $this->cooperativasIds(), true);
     }
+
+    public function possuiRegistrosVinculados(): bool
+    {
+        return $this->casos()->exists()
+            || $this->andamentosCaso()->exists()
+            || SuspensaoPrazo::query()->where('criado_por', $this->id)->exists()
+            || PrazoNotificacaoEnvio::query()->where('user_id', $this->id)->exists()
+            || $this->notifications()->exists();
+    }
 }

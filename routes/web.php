@@ -22,10 +22,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
+    ->middleware(['auth', 'active.user'])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active.user'])->group(function () {
     Route::prefix('casos')->name('casos.')->group(function () {
         Route::get('/', [CasoController::class, 'index'])->name('index');
         Route::get('/criar', [CasoController::class, 'create'])->name('create');
@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{user}/editar', [UsuarioController::class, 'edit'])->name('edit');
         Route::match(['put', 'patch'], '/{user}', [UsuarioController::class, 'update'])->name('update');
         Route::patch('/{user}/status', [UsuarioController::class, 'atualizarStatus'])->name('status');
+        Route::delete('/{user}', [UsuarioController::class, 'destroy'])->name('destroy');
         Route::get('/{user}/senha', [UsuarioController::class, 'editSenha'])->name('senha.edit');
         Route::patch('/{user}/senha', [UsuarioController::class, 'updateSenha'])->name('senha.update');
     });

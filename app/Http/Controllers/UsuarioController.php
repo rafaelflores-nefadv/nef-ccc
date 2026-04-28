@@ -16,6 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\View\View;
 use Throwable;
 
@@ -94,12 +95,12 @@ class UsuarioController extends Controller
 
             return back()
                 ->withInput()
-                ->with('erro', 'Nao foi possivel cadastrar o usuario. Verifique os dados informados.');
+                ->with('erro', 'Não foi possível cadastrar o usuário. Verifique os dados informados.');
         }
 
         return redirect()
             ->route('usuarios.index')
-            ->with('status', 'Usuario cadastrado com sucesso.');
+            ->with('status', 'Usuário cadastrado com sucesso.');
     }
 
     public function edit(User $user): View
@@ -121,10 +122,17 @@ class UsuarioController extends Controller
     public function update(UpdateUsuarioRequest $request, User $user): RedirectResponse
     {
         Gate::authorize('update', $user);
+        $dadosValidados = $request->validated();
+
+        if (auth()->id() === $user->id && ($dadosValidados['ativo'] ?? true) === false) {
+            return back()
+                ->withInput()
+                ->with('erro', 'Você não pode desativar sua própria conta.');
+        }
 
         try {
-            DB::transaction(function () use ($request, $user): void {
-                $dados = $request->validated();
+            DB::transaction(function () use ($dadosValidados, $user): void {
+                $dados = $dadosValidados;
                 $papelId = $dados['papel_id'] ?? null;
                 $cooperativasIds = $this->normalizarCooperativasIds($dados['cooperativas'] ?? []);
                 $novaSenha = $dados['password'] ?? null;
@@ -146,31 +154,71 @@ class UsuarioController extends Controller
 
             return back()
                 ->withInput()
-                ->with('erro', 'Nao foi possivel salvar as alteracoes do usuario. Verifique os dados informados.');
+                ->with('erro', 'Não foi possível salvar as alterações do usuário. Verifique os dados informados.');
         }
 
         return redirect()
             ->route('usuarios.index')
-            ->with('status', 'Usuario atualizado com sucesso.');
+            ->with('status', 'Usuário atualizado com sucesso.');
     }
 
     public function atualizarStatus(UpdateStatusUsuarioRequest $request, User $user): RedirectResponse
     {
         Gate::authorize('update', $user);
+        $novoStatus = $request->boolean('ativo');
+
+        if (auth()->id() === $user->id && $novoStatus === false) {
+            return back()->with('erro', 'Você não pode desativar sua própria conta.');
+        }
 
         try {
             $user->update([
-                'ativo' => $request->boolean('ativo'),
+                'ativo' => $novoStatus,
             ]);
         } catch (Throwable $exception) {
             report($exception);
 
-            return back()->with('erro', 'Nao foi possivel atualizar o status do usuario.');
+            return back()->with('erro', 'Não foi possível atualizar o status do usuário.');
         }
 
         return back()->with('status', $user->ativo
-            ? 'Usuario ativado com sucesso.'
-            : 'Usuario desativado com sucesso.');
+            ? 'Usuário ativado com sucesso.'
+            : 'Usuário desativado com sucesso.');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        try {
+            Gate::authorize('delete', $user);
+        } catch (AuthorizationException $exception) {
+            if (auth()->id() === $user->id) {
+                return back()->with('erro', 'Você não pode excluir sua própria conta.');
+            }
+
+            if ($user->ativo) {
+                return back()->with('erro', 'Somente usuários inativos podem ser excluídos.');
+            }
+
+            throw $exception;
+        }
+
+        if ($user->possuiRegistrosVinculados()) {
+            return back()->with('erro', 'Não é possível excluir este usuário porque existem registros vinculados a ele.');
+        }
+
+        try {
+            DB::transaction(function () use ($user): void {
+                $user->cooperativas()->detach();
+                $user->papeis()->detach();
+                $user->delete();
+            });
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->with('erro', 'Não foi possível excluir o usuário.');
+        }
+
+        return back()->with('status', 'Usuário excluído com sucesso.');
     }
 
     public function editSenha(User $user): View
@@ -195,7 +243,7 @@ class UsuarioController extends Controller
 
             return back()
                 ->withInput()
-                ->with('erro', 'Nao foi possivel redefinir a senha do usuario.');
+                ->with('erro', 'Não foi possível redefinir a senha do usuário.');
         }
 
         return redirect()

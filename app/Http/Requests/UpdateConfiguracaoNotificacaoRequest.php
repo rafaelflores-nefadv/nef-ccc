@@ -30,12 +30,6 @@ class UpdateConfiguracaoNotificacaoRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'canal_email_ativo' => $this->boolean('canal_email_ativo'),
-            'canal_whatsapp_ativo' => $this->boolean('canal_whatsapp_ativo'),
-            'notificar_prazo_vencendo' => $this->boolean('notificar_prazo_vencendo'),
-            'notificar_prazo_vencido' => $this->boolean('notificar_prazo_vencido'),
-            'notificar_leilao' => $this->boolean('notificar_leilao'),
-            'notificar_novo_andamento' => $this->boolean('notificar_novo_andamento'),
             'dias_antes_prazo' => (int) $this->input('dias_antes_prazo', 0),
         ]);
     }
@@ -68,4 +62,3 @@ class UpdateConfiguracaoNotificacaoRequest extends FormRequest
         ];
     }
 }
-

@@ -150,7 +150,15 @@
                                                 Editar
                                             </a>
 
-                                            <form method="POST" action="{{ route('usuarios.status', $usuario) }}" onsubmit="return confirm('{{ $usuario->ativo ? 'Tem certeza de que deseja desativar este usuário?' : 'Tem certeza de que deseja ativar este usuário?' }}');">
+                                            <form
+                                                method="POST"
+                                                action="{{ route('usuarios.status', $usuario) }}"
+                                                data-confirm="true"
+                                                data-confirm-title="{{ $usuario->ativo ? 'Desativar usuário' : 'Ativar usuário' }}"
+                                                data-confirm-message="{{ $usuario->ativo ? 'Tem certeza de que deseja desativar este usuário?' : 'Tem certeza de que deseja ativar este usuário?' }}"
+                                                data-confirm-text="{{ $usuario->ativo ? 'Desativar' : 'Ativar' }}"
+                                                data-confirm-variant="{{ $usuario->ativo ? 'danger' : 'primary' }}"
+                                            >
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="ativo" value="{{ $usuario->ativo ? '0' : '1' }}">
@@ -165,6 +173,29 @@
                                                     {{ $usuario->ativo ? 'Desativar' : 'Ativar' }}
                                                 </button>
                                             </form>
+
+                                            @can('delete', $usuario)
+                                            @if (! $usuario->ativo && auth()->id() !== $usuario->id)
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('usuarios.destroy', $usuario) }}"
+                                                    data-confirm="true"
+                                                    data-confirm-title="Excluir usuário"
+                                                    data-confirm-message="Tem certeza de que deseja excluir este usuário? Esta ação não poderá ser desfeita."
+                                                    data-confirm-text="Excluir"
+                                                    data-confirm-variant="danger"
+                                                >
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-red-50 px-2.5 py-1.5 text-red-700 transition hover:bg-red-100">
+                                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 7.5h12m-10.5 0V6a1.5 1.5 0 011.5-1.5h6A1.5 1.5 0 0116.5 6v1.5m-9 0l.638 10.213A1.5 1.5 0 009.634 19.5h4.732a1.5 1.5 0 001.496-1.287L16.5 7.5" />
+                                                        </svg>
+                                                        Excluir
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @endcan
 
                                             <a href="{{ route('usuarios.senha.edit', $usuario) }}" class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2.5 py-1.5 text-indigo-700 transition hover:bg-indigo-100">
                                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
