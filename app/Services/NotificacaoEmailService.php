@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Models\ConfiguracaoEmail;
-use InvalidArgumentException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class NotificacaoEmailService
 {
@@ -43,15 +43,16 @@ class NotificacaoEmailService
     {
         $nomeMailer = 'notificacao_prazo_'.Str::lower(Str::random(10));
         $driver = strtolower((string) ($dados['driver'] ?? 'smtp'));
+        $dadosNormalizados = $this->normalizarConfiguracaoSmtp($driver, $dados);
 
-        Config::set("mail.mailers.$nomeMailer", $this->configuracaoMailer($driver, $dados));
+        Config::set("mail.mailers.$nomeMailer", $this->configuracaoMailer($driver, $dadosNormalizados));
 
-        Mail::mailer($nomeMailer)->raw($conteudo, function ($message) use ($dados, $destinatario, $assunto): void {
+        Mail::mailer($nomeMailer)->raw($conteudo, function ($message) use ($dadosNormalizados, $destinatario, $assunto): void {
             $message->to($destinatario);
             $message->subject($assunto);
             $message->from(
-                (string) $dados['email_remetente'],
-                (string) $dados['nome_remetente']
+                (string) $dadosNormalizados['email_remetente'],
+                (string) $dadosNormalizados['nome_remetente']
             );
         });
     }
@@ -90,4 +91,39 @@ class NotificacaoEmailService
 
         throw new InvalidArgumentException('Driver de e-mail nao suportado para notificacao.');
     }
+
+    /**
+     * @param array<string, mixed> $dados
+     * @return array<string, mixed>
+     */
+    protected function normalizarConfiguracaoSmtp(string $driver, array $dados): array
+    {
+        if ($driver !== 'smtp') {
+            return $dados;
+        }
+
+        $host = mb_strtolower(trim((string) ($dados['host'] ?? '')));
+
+        if ($host !== 'smtp.titan.email') {
+            return $dados;
+        }
+
+        $usuario = mb_strtolower(trim((string) ($dados['usuario'] ?? '')));
+        $porta = (int) ($dados['porta'] ?? 0);
+
+        if ($usuario !== '') {
+            $dados['email_remetente'] = $usuario;
+        }
+
+        if ($porta === 587) {
+            $dados['criptografia'] = 'tls';
+        }
+
+        if ($porta === 465) {
+            $dados['criptografia'] = 'ssl';
+        }
+
+        return $dados;
+    }
 }
+

@@ -141,17 +141,20 @@ class ConfiguracaoController extends Controller
 
         $tarefa = $taskService->criar('teste_email', (int) $request->user()->id, 'Teste de e-mail agendado.');
 
-        ProcessarTesteConfiguracaoEmailJob::dispatchAfterResponse(
+        ProcessarTesteConfiguracaoEmailJob::dispatchSync(
             (string) $tarefa['token'],
             $dados,
             $destinatario
         );
 
+        $tarefaAtualizada = $taskService->obter((string) $tarefa['token'], (int) $request->user()->id) ?? $tarefa;
+
         return response()->json([
-            'token' => $tarefa['token'],
-            'status' => $tarefa['status'],
-            'mensagem' => $tarefa['mensagem'],
-        ], 202);
+            'token' => $tarefaAtualizada['token'],
+            'status' => $tarefaAtualizada['status'],
+            'mensagem' => $tarefaAtualizada['mensagem'],
+            'resultado' => $tarefaAtualizada['resultado'] ?? [],
+        ], 200);
     }
 
     public function updateNotificacoes(UpdateConfiguracaoNotificacaoRequest $request): RedirectResponse

@@ -7,6 +7,7 @@ use App\Services\ConfiguracaoEmailTesteService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ProcessarTesteConfiguracaoEmailJob implements ShouldQueue
@@ -37,17 +38,22 @@ class ProcessarTesteConfiguracaoEmailJob implements ShouldQueue
                 ['destinatario' => $this->destinatario]
             );
         } catch (Throwable $exception) {
-            Log::error('Falha no teste de configuração de e-mail.', [
+            Log::error('Falha no teste de configuracao de e-mail.', [
                 'token' => $this->token,
                 'destinatario' => $this->destinatario,
                 'driver' => $this->dadosEmail['driver'] ?? null,
                 'host' => $this->dadosEmail['host'] ?? null,
                 'erro' => $exception->getMessage(),
+                'exception_class' => $exception::class,
+                'exception' => $exception,
             ]);
 
             $taskService->marcarFalha(
                 $this->token,
-                'Falha ao enviar e-mail de teste. Revise as configurações e tente novamente.'
+                Str::limit(
+                    'Falha ao enviar e-mail de teste: '.$exception->getMessage(),
+                    220
+                )
             );
         }
     }

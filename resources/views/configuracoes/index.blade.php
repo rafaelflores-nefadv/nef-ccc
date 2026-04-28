@@ -133,10 +133,13 @@
                     this.mensagem = 'Solicitação enviada. Aguardando processamento...';
 
                     try {
+                        const body = new FormData(this.$refs.form);
+                        body.delete('_method');
+
                         const response = await fetch(testeUrl, {
                             method: 'POST',
                             headers: csrfHeaders(csrfToken),
-                            body: new FormData(this.$refs.form),
+                            body,
                         });
 
                         const data = await response.json();
@@ -147,7 +150,10 @@
 
                         this.status = data.status || 'pendente';
                         this.mensagem = data.mensagem || 'Teste agendado.';
-                        this.iniciarPolling(data.token);
+
+                        if (!CONFIG_ASYNC_FINALIZADOS.includes(this.status)) {
+                            this.iniciarPolling(data.token);
+                        }
                     } catch (error) {
                         this.status = 'falha';
                         this.mensagem = parseErroPadrao(error);
@@ -203,6 +209,10 @@
 
                     if (typeof data.mensagem === 'string') {
                         return data.mensagem;
+                    }
+
+                    if (typeof data.message === 'string') {
+                        return data.message;
                     }
 
                     if (data.errors && typeof data.errors === 'object') {

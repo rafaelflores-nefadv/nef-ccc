@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateConfiguracaoEmailRequest extends FormRequest
 {
@@ -19,9 +20,25 @@ class UpdateConfiguracaoEmailRequest extends FormRequest
     {
         return [
             'driver' => ['required', 'string', Rule::in(['smtp', 'sendmail', 'log'])],
-            'host' => ['required', 'string', 'max:255'],
-            'porta' => ['required', 'integer', 'min:1', 'max:65535'],
-            'usuario' => ['required', 'string', 'max:255'],
+            'host' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(fn (): bool => strtolower((string) $this->input('driver')) === 'smtp'),
+            ],
+            'porta' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:65535',
+                Rule::requiredIf(fn (): bool => strtolower((string) $this->input('driver')) === 'smtp'),
+            ],
+            'usuario' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(fn (): bool => strtolower((string) $this->input('driver')) === 'smtp'),
+            ],
             'senha' => ['nullable', 'string', 'max:255'],
             'criptografia' => ['nullable', 'string', Rule::in(['tls', 'ssl'])],
             'email_remetente' => ['required', 'email', 'max:255'],
@@ -44,22 +61,68 @@ class UpdateConfiguracaoEmailRequest extends FormRequest
         ]);
     }
 
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $driver = strtolower((string) $this->input('driver', 'smtp'));
+
+            if ($driver !== 'smtp') {
+                return;
+            }
+
+            $host = mb_strtolower(trim((string) $this->input('host')));
+
+            if ($host !== 'smtp.titan.email') {
+                return;
+            }
+
+            $usuario = mb_strtolower(trim((string) $this->input('usuario')));
+            $emailRemetente = mb_strtolower(trim((string) $this->input('email_remetente')));
+            $porta = (int) $this->input('porta');
+            $criptografia = mb_strtolower(trim((string) $this->input('criptografia')));
+
+            if ($usuario !== '' && $emailRemetente !== '' && $usuario !== $emailRemetente) {
+                $validator->errors()->add(
+                    'email_remetente',
+                    'No Titan, o e-mail remetente deve ser igual ao usuario SMTP autenticado.'
+                );
+            }
+
+            if ($porta === 587 && $criptografia !== 'tls') {
+                $validator->errors()->add(
+                    'criptografia',
+                    'No Titan, a porta 587 exige criptografia TLS.'
+                );
+            }
+
+            if ($porta === 465 && $criptografia !== 'ssl') {
+                $validator->errors()->add(
+                    'criptografia',
+                    'No Titan, a porta 465 exige criptografia SSL.'
+                );
+            }
+        });
+    }
+
     /**
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'driver.required' => 'O driver de e-mail é obrigatório.',
-            'driver.in' => 'Selecione um driver de e-mail válido.',
-            'host.required' => 'O host de e-mail é obrigatório.',
-            'porta.required' => 'A porta de e-mail é obrigatória.',
-            'porta.integer' => 'A porta deve ser um número inteiro.',
-            'usuario.required' => 'O usuário de e-mail é obrigatório.',
-            'criptografia.in' => 'Selecione uma criptografia válida (TLS ou SSL).',
-            'email_remetente.required' => 'O e-mail remetente é obrigatório.',
-            'email_remetente.email' => 'O e-mail remetente deve ser válido.',
-            'nome_remetente.required' => 'O nome remetente é obrigatório.',
+            'driver.required' => 'O driver de e-mail e obrigatorio.',
+            'driver.in' => 'Selecione um driver de e-mail valido.',
+            'host.required' => 'O host de e-mail e obrigatorio.',
+            'host.required_if' => 'O host de e-mail e obrigatorio para SMTP.',
+            'porta.required' => 'A porta de e-mail e obrigatoria.',
+            'porta.required_if' => 'A porta de e-mail e obrigatoria para SMTP.',
+            'porta.integer' => 'A porta deve ser um numero inteiro.',
+            'usuario.required' => 'O usuario de e-mail e obrigatorio.',
+            'usuario.required_if' => 'O usuario de e-mail e obrigatorio para SMTP.',
+            'criptografia.in' => 'Selecione uma criptografia valida (TLS ou SSL).',
+            'email_remetente.required' => 'O e-mail remetente e obrigatorio.',
+            'email_remetente.email' => 'O e-mail remetente deve ser valido.',
+            'nome_remetente.required' => 'O nome remetente e obrigatorio.',
             'ativo.boolean' => 'O campo ativo deve ser verdadeiro ou falso.',
         ];
     }
@@ -73,7 +136,7 @@ class UpdateConfiguracaoEmailRequest extends FormRequest
             'driver' => 'driver de e-mail',
             'host' => 'host',
             'porta' => 'porta',
-            'usuario' => 'usuário',
+            'usuario' => 'usuario',
             'senha' => 'senha',
             'criptografia' => 'criptografia',
             'email_remetente' => 'e-mail remetente',
@@ -82,3 +145,4 @@ class UpdateConfiguracaoEmailRequest extends FormRequest
         ];
     }
 }
+
